@@ -1,0 +1,17 @@
+[package]
+name = "yosys_isim"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+smallvec = { workspace = true }
+more_collections = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+enum_dispatch = { workspace = true }
+static_assertions = { workspace = true }
+paste = { workspace = true }

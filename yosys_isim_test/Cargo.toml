@@ -1,0 +1,11 @@
+[package]
+name = "yosys_isim_test"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+yosys_isim = { path = "../yosys_isim" }
+lazy_static = { workspace = true }

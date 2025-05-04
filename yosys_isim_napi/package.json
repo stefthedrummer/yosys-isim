@@ -1,0 +1,29 @@
+{
+  "name": "yosys_isim_napi",
+  "version": "0.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "yosys_isim_napi",
+    "triples": {}
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.4"
+  },
+  "engines": {
+    "node": ">= 10"
+  },
+  "scripts": {
+    "sandbox": "npm run build; tsx sandbox.ts",
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "ava",
+    "universal": "napi universal",
+    "version": "napi version"
+  },
+  "dependencies": {
+    "tsx": "^4.19.4"
+  }
+}

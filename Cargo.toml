@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = ["yosys_isim", "yosys_isim_test", "yosys_isim_napi"]
+
+[workspace.dependencies]
+smallvec = { version = "1.15.0", features = ["serde"] }
+more_collections = { version = "0.14.3", features = [
+    "serde",
+    "smallset",
+    "smallmap",
+] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = { version = "1.0.140", features = [] }
+thiserror = "2.0.12"
+enum_dispatch = "0.3.13"
+static_assertions = "1.1.0"
+paste = "1.0.15"
+lazy_static = { version = "1.5.0" }
+
+
+napi = { version = "2.12.2", default-features = false, features = ["napi3"] }
+napi-derive = "2.12.2"
+
+
+[profile.release]
+lto = true
+strip = "symbols"

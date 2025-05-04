@@ -1,0 +1,15 @@
+[package]
+edition = "2021"
+name = "yosys_isim_napi"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+yosys_isim = { path = "../yosys_isim" }
+napi = { workspace = true }
+napi-derive = { workspace = true }
+
+[build-dependencies]
+napi-build = "2.0.1"

@@ -1,15 +1,39 @@
 # YOSYS-iSim - an Interactive-Simulator
 
-This project tries to implement **an interactive** simulator that can simulate netlists produced by yosys (https://github.com/YosysHQ/yosys)
+### ... for Javascript/Typescript and Rust
 
+This project tries to implement **an interactive** simulator that can simulate netlists produced by Yosys (https://github.com/YosysHQ/yosys)
 
 it will read modules from the netlist.json that can be generated with Yosys via the **write_json** command.
 
-Project Structure:
+### Features and Progress:
+
+|                                    |                  |
+| ---------------------------------- | ---------------- |
+| Basic Logic Gates ($and, $or, ...) | ✅               |
+| Flip Flops ($dff)                  | ✅               |
+| Low-Level Gates ($_XNOR_, ...)     | 🟡 (some)        |
+| Tests                              | 🟡 (only simple) |
+| Outputs, Dumps, Traces             | ❌               |
+
+### Project Structure:
+
 - **yosys_isim/**: the core library that implements the simulator and the json parser
 - **yosys_isim_test/**: end to end tests. compiles SystemVerilog via yosys, parses it and runs simulation tests.
 - **yosys_isim_napi/**: js/ts/node bindings
 
+## Javascript / Typescript
+
+```javascript
+const modules = Module.parseModulesFromFile("<netlist.json>")
+const module = modules.find(e => e.name == "And")!!;
+const sim = Sim.create(module);
+
+sim.set("a", [1])
+sim.set("b", [1])
+sim.simulate(); // simulates 1 tick
+console.log(sim.get("b", 1))
+```
 
 ## Rust
 
@@ -42,17 +66,4 @@ sim.set(&port_c, [1]);
 sim.simulate()?;
 
 assert_eq!(sim.get(&port_q), [Logic::_0, Logic::_1]);
-```
-
-## Javascript / Typescript
-
-```javascript
-const modules = Module.parseModulesFromFile("<netlist.json>")
-const module = modules.find(e => e.name == "And")!!;
-const sim = Sim.create(module);
-
-sim.set("a", [1])
-sim.set("b", [1])
-sim.simulate(); // simulates 1 tick
-console.log(sim.get("b", 1))
 ```

@@ -6,10 +6,10 @@ use smallvec::smallvec;
 use crate::{
     Vec4,
     common::{FindByName, Set4, SimError},
-    model::{BinaryOp_Len, HCell, HWire, Module},
+    model::{HCell, HWire, Module},
 };
 
-use super::{BinOpTruthTable, Edge, Logic, SimCell, SimPort};
+use super::{Edge, Logic, OP_FNS, OpFns, SimCell, SimPort};
 
 pub struct Sim<'m> {
     frame: usize,
@@ -28,7 +28,7 @@ pub enum WireState {
 pub struct SimState {
     pub wires: [Vec<Logic>; 2],
     pub set_wires_deferred: Vec<(HWire, Logic)>,
-    pub binop_truthtables: [BinOpTruthTable; BinaryOp_Len],
+    pub ops: &'static OpFns,
 }
 
 impl SimState {
@@ -100,7 +100,7 @@ impl<'m> Sim<'m> {
             sim_state: SimState {
                 wires: [vec![Logic::X; num_wires], vec![Logic::X; num_wires]],
                 set_wires_deferred: Vec::new(),
-                binop_truthtables: BinOpTruthTable::compile(),
+                ops: &OP_FNS,
             },
         }
     }

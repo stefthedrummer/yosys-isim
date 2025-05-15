@@ -8,13 +8,12 @@ it will read modules from the netlist.json that can be generated with Yosys via 
 
 ### Features and Progress:
 
-|                                    |                  |
-| ---------------------------------- | ---------------- |
-| Basic Logic Gates ($and, $or, ...) | ✅               |
-| Flip Flops ($dff)                  | ✅               |
-| Low-Level Gates ($_XNOR_, ...)     | 🟡 (some)        |
-| Tests                              | 🟡 (only simple) |
-| Outputs, Dumps, Traces             | ❌               |
+|                                |                  |                                                                                                           |
+| ------------------------------ | ---------------- | --------------------------------------------------------------------------------------------------------- |
+| Basic Logic Gates, FlipFlops   | ✅               | $and, $not, $or, $add, $dff                                                                               |
+| Low-Level Gates ($_XNOR_, ...) | 🟡 (some)        | $_OR_, $_AND_, $_NAND_, $_XOR_, $_XNOR_, $_NOR_, $_ORNOT_, $_ANDNOT_, $_DFF_P_, $_NOT_, $_OAI3_, $_AOI3_, |
+| Tests                          | 🟡 (only simple) |
+| Outputs, Dumps, Traces         | ❌               |
 
 ### Project Structure:
 

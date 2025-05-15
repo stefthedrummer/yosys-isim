@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::BufReader;
 
+use crate::TernaryOp;
 use crate::common::FindByName;
 use crate::common::SimError;
 use crate::common::Vec4;
@@ -45,38 +46,50 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
     }
 
     for (cell_name, json_cell) in json_module.cells.iter() {
-        let cell: model::Cell =    match json_cell.r#type {
+        let cell: model::Cell =  match json_cell.r#type {
             json::CellType::AND | json::CellType::SyntAND => {
-                parse_binop(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::AND)?
+                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::AND)?
             }
             json::CellType::OR | json::CellType::SyntOR => {
-                parse_binop(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::OR)?
+                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::OR)?
             }
-            json::CellType::NOT => {
-                    parse_not(cell_name, json_cell, ("A", "Y"))?
+            json::CellType::NOT | json::CellType::SyntNOT => {
+                parse_not(cell_name, json_cell, ("A", "Y"))?
             }
             json::CellType::DFF => {
                 parse_flipflop(cell_name, json_cell, ("CLK", "D", "Q"), None)?
             }
-            json::CellType::SyncDFFPos => {
-                parse_flipflop(cell_name, json_cell, ("C", "D", "Q"), Some(Edge::POSITIVE))?
-            }
-            json::CellType::SyntNAND => {
-                parse_binop(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::NAND)?
-            }
-            json::CellType::SyntNOR => {
-                parse_binop(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::NOR)?
-            }
-            json::CellType::SyncXOR => {
-                parse_binop(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::XOR)?
-            }
-            json::CellType::SyncXNOR => {
-                parse_binop(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::XNOR)?
-            }
             json::CellType::Add => {
                 parse_add(cell_name, json_cell, ("A", "B", "Y"))?
             }
-            json::CellType::SyncOAI3 => todo!(),
+            json::CellType::SyntDFFPos => {
+                parse_flipflop(cell_name, json_cell, ("C", "D", "Q"), Some(Edge::POSITIVE))?
+            }
+            json::CellType::SyntNAND => {
+                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::NAND)?
+            }
+            json::CellType::SyntNOR => {
+                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::NOR)?
+            }
+            json::CellType::SyntXOR => {
+                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::XOR)?
+            }
+            json::CellType::SyntXNOR => {
+                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::XNOR)?
+            }
+            json::CellType::SyntAND_NOT => {
+                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::AND_NOT)?
+            }
+            json::CellType::SyntOR_NOT => {
+                parse_binary_op(cell_name, json_cell, ("A", "B",  "Y"), model::BinaryOp::OR_NOT)?
+            }
+
+            json::CellType::SyntAOI3 => {
+                parse_ternary_op(cell_name, json_cell, ("A", "B", "C", "Y"), model::TernaryOp::AND_OR_INV)?
+            }
+            json::CellType::SyntOAI3 => {
+                parse_ternary_op(cell_name, json_cell, ("A", "B", "C", "Y"), model::TernaryOp::OR_AND_INV)?
+            }
         };
 
         cells.push(cell);
@@ -90,11 +103,11 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
     })
 }
 
-fn parse_binop(
+fn parse_binary_op(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str, &str),
-    binary_op: model::BinaryOp,
+    op: model::BinaryOp,
 ) -> Result<model::Cell, SimError> {
     let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
 
@@ -102,7 +115,7 @@ fn parse_binop(
     let conn_b = connections.iter().find_by_name(connection_names.1)?;
     let conn_y = connections.iter().find_by_name(connection_names.2)?;
 
-    if conn_a.width != conn_b.width && conn_b.width != conn_y.width {
+    if conn_a.width != conn_b.width || conn_b.width != conn_y.width {
         return Err(SimError::JsonError {
             msg: format!("Widths not matching"),
         });
@@ -110,7 +123,7 @@ fn parse_binop(
 
     Ok(model::Cell::BinaryOpCell(model::BinaryOpCell {
         name: cell_name.to_string(),
-        op: binary_op,
+        op,
         // width: conn_y.width,
         port_a: conn_a.to_port(),
         port_b: conn_b.to_port(),
@@ -178,7 +191,7 @@ fn parse_add(
     let conn_b = connections.iter().find_by_name(connection_names.1)?;
     let conn_y = connections.iter().find_by_name(connection_names.2)?;
 
-    if conn_a.width != conn_b.width && conn_b.width != conn_y.width {
+    if conn_a.width != conn_b.width || conn_b.width != conn_y.width {
         return Err(SimError::JsonError {
             msg: format!("Widths not matching"),
         });
@@ -188,6 +201,36 @@ fn parse_add(
         name: cell_name.to_string(),
         port_a: conn_a.to_port(),
         port_b: conn_b.to_port(),
+        port_y: conn_y.to_port(),
+    }))
+}
+
+fn parse_ternary_op(
+    cell_name: &str,
+    json_cell: &json::Cell,
+    connection_names: (&str, &str, &str, &str),
+    op: TernaryOp,
+) -> Result<model::Cell, SimError> {
+    let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
+
+    let conn_a = connections.iter().find_by_name(connection_names.0)?;
+    let conn_b = connections.iter().find_by_name(connection_names.1)?;
+    let conn_c = connections.iter().find_by_name(connection_names.2)?;
+    let conn_y = connections.iter().find_by_name(connection_names.3)?;
+
+    if conn_a.width != conn_b.width || conn_b.width != conn_c.width || conn_c.width != conn_y.width
+    {
+        return Err(SimError::JsonError {
+            msg: format!("Widths not matching"),
+        });
+    }
+
+    Ok(model::Cell::TernaryOpCell(model::TernaryOpCell {
+        name: cell_name.to_string(),
+        op: op,
+        port_a: conn_a.to_port(),
+        port_b: conn_b.to_port(),
+        port_c: conn_c.to_port(),
         port_y: conn_y.to_port(),
     }))
 }

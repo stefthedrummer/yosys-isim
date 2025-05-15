@@ -39,8 +39,8 @@ pub struct Cell {
     pub parameters: HashMap<String, Value>,
 }
 
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
-
 pub enum CellType {
     #[serde(rename = "$and")]
     AND,
@@ -58,20 +58,29 @@ pub enum CellType {
     #[serde(rename = "$_OR_")]
     SyntOR,
     #[serde(rename = "$_XOR_")]
-    SyncXOR,
+    SyntXOR,
     // --------------------------------
     #[serde(rename = "$_NAND_")]
     SyntNAND,
     #[serde(rename = "$_NOR_")]
     SyntNOR,
     #[serde(rename = "$_XNOR_")]
-    SyncXNOR,
+    SyntXNOR,
     // --------------------------------
+    #[serde(rename = "$_ANDNOT_")]
+    SyntAND_NOT,
+    #[serde(rename = "$_ORNOT_")]
+    SyntOR_NOT,
+    // --------------------------------
+    #[serde(rename = "$_NOT_")]
+    SyntNOT,
     #[serde(rename = "$_DFF_P_")]
-    SyncDFFPos,
+    SyntDFFPos,
     // --------------------------------
+    #[serde(rename = "$_AOI3_")]
+    SyntAOI3,
     #[serde(rename = "$_OAI3_")]
-    SyncOAI3,
+    SyntOAI3,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

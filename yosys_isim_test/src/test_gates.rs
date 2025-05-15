@@ -1,43 +1,42 @@
-use std::{fmt::format, ops::Deref};
-
+use super::{TEST_GATES_SV, util::assert::assert};
+use std::ops::Deref;
 use yosys_isim::{
     common::{FindByName, SimError},
     sim::{Logic, Sim},
 };
 
-use super::{TEST_GATES_SV, util::assert::assert};
-
 #[test]
 pub fn test_and() {
-    do_test_binop::<1>("And", |a, b| a & b).unwrap();
+    do_test_binary_op::<1>("And", |a, b| a & b).unwrap();
 }
 
 #[test]
 pub fn test_and2() {
-    do_test_binop::<32>("And32", |a, b| a & b).unwrap();
+    do_test_binary_op::<32>("And32", |a, b| a & b).unwrap();
 }
 
 #[test]
 pub fn test_or() {
-    do_test_binop::<1>("Or", |a, b| a | b).unwrap();
+    do_test_binary_op::<1>("Or", |a, b| a | b).unwrap();
 }
 
 #[test]
 pub fn test_or2() {
-    do_test_binop::<32>("Or32", |a, b| a | b).unwrap();
+    do_test_binary_op::<32>("Or32", |a, b| a | b).unwrap();
 }
 
 #[test]
 pub fn test_nand() {
-    do_test_binop::<1>("Nand", |a, b| !(a & b)).unwrap();
+    do_test_binary_op::<1>("Nand", |a, b| !(a & b)).unwrap();
 }
 
 #[test]
 pub fn test_nor() {
-    do_test_binop::<1>("Nor", |a, b| !(a | b)).unwrap();
+    do_test_binary_op::<1>("Nor", |a, b| !(a | b)).unwrap();
 }
 
-pub fn do_test_binop<const W: usize>(
+#[allow(unused)]
+pub fn do_test_binary_op<const W: usize>(
     module_name: &str,
     eval: fn(bool, bool) -> bool,
 ) -> Result<(), SimError> {

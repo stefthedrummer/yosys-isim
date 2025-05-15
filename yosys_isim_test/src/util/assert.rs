@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use yosys_isim::{common::Vec4, sim::Logic};
 
 pub fn assert(

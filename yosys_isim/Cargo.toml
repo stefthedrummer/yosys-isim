@@ -15,3 +15,4 @@ thiserror = { workspace = true }
 enum_dispatch = { workspace = true }
 static_assertions = { workspace = true }
 paste = { workspace = true }
+lazy_static = { workspace = true }

@@ -30,8 +30,36 @@ impl HasName for Module {
 pub enum Cell {
     NotOpCell(NotOpCell),
     BinaryOpCell(BinaryOpCell),
+    TernaryOpCell(TernaryOpCell),
     DFlipFlopCell(DFlipFlopCell),
     AddCell(AddCell),
+}
+
+#[derive(Debug, Clone)]
+pub struct NotOpCell {
+    pub name: String,
+    pub port_a: Port,
+    pub port_y: Port,
+}
+
+make_enum![enum BinaryOp repr(u8) {
+    AND,
+    OR,
+    XOR,
+    NAND,
+    NOR,
+    XNOR,
+    AND_NOT,
+    OR_NOT,
+}];
+
+#[derive(Debug, Clone)]
+pub struct BinaryOpCell {
+    pub name: String,
+    pub op: BinaryOp,
+    pub port_a: Port,
+    pub port_b: Port,
+    pub port_y: Port,
 }
 
 #[derive(Debug, Clone)]
@@ -51,21 +79,18 @@ pub struct AddCell {
     pub port_y: Port,
 }
 
-#[derive(Debug, Clone)]
-pub struct NotOpCell {
-    pub name: String,
-    pub port_a: Port,
-    pub port_y: Port,
-}
-
-make_enum![BinaryOp, AND, OR, XOR, NAND, NOR, XNOR];
+make_enum![enum TernaryOp repr(u8) {
+    AND_OR_INV,
+    OR_AND_INV,
+}];
 
 #[derive(Debug, Clone)]
-pub struct BinaryOpCell {
+pub struct TernaryOpCell {
     pub name: String,
-    pub op: BinaryOp,
+    pub op: TernaryOp,
     pub port_a: Port,
     pub port_b: Port,
+    pub port_c: Port,
     pub port_y: Port,
 }
 

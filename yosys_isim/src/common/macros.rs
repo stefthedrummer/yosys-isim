@@ -8,10 +8,11 @@ macro_rules! count {
 
 #[macro_export]
 macro_rules! make_enum {
-    ($name:ident, $($variants:ident),+) => {
+    (enum $name:ident repr($repr:ident) { $($variants:ident ,)+ }) => {
         paste::paste! {
-            #[repr(u32)]
-            #[derive(Clone, Copy, Debug)]
+            #[repr($repr)]
+            #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+            #[allow(non_camel_case_types)]
             pub enum $name {
                 $($variants),+
             }

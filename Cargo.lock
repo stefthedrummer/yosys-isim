@@ -402,6 +402,7 @@ name = "yosys_isim"
 version = "0.1.0"
 dependencies = [
  "enum_dispatch",
+ "lazy_static",
  "more_collections",
  "paste",
  "serde",

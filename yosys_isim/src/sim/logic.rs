@@ -6,7 +6,10 @@ use std::{
     usize,
 };
 
-use crate::model::{BinaryOp, BinaryOp_Len, BinaryOp_Variants};
+use crate::{
+    Vec4,
+    model::{BinaryOp, BinaryOp_Len, BinaryOp_Variants},
+};
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -44,6 +47,14 @@ pub enum Logic {
 }
 
 impl Logic {
+    pub fn to_bits<const L: usize>(integer: isize) -> [Logic; L] {
+        let mut bits: [Logic; L] = [Logic::X; L];
+        for i in 0..L {
+            bits[i] = ((integer >> i) & 0b1).into();
+        }
+        bits
+    }
+
     const fn eval_bool(binop: BinaryOp, a: bool, b: bool) -> bool {
         match binop {
             BinaryOp::AND => a & b,
@@ -136,11 +147,21 @@ from_impl![u8];
 from_impl![u32];
 from_impl![i32];
 from_impl![usize];
+from_impl![isize];
 
 #[derive(Copy, Clone)]
 pub struct BinOpTruthTable {
     matrix: [[Logic; 3]; 3],
 }
+
+impl Index<BinaryOp> for [BinOpTruthTable; BinaryOp_Len] {
+    type Output = BinOpTruthTable;
+
+    fn index(&self, index: BinaryOp) -> &Self::Output {
+        &self[index as usize]
+    }
+}
+
 impl Default for BinOpTruthTable {
     fn default() -> Self {
         Self {

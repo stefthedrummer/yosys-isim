@@ -57,9 +57,9 @@ module Dff (
 endmodule
 
 module Add (
-    input  logic[3:0] a,
-    input  logic[3:0] b,
-    output logic[3:0] c
+    input  logic[7:0] a,
+    input  logic[7:0] b,
+    output logic[7:0] y
 );
-  assign c = a + b;
+  assign y = a + b;
 endmodule

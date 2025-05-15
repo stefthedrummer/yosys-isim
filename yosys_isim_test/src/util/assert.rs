@@ -1,10 +1,10 @@
 use yosys_isim::{common::Vec4, sim::Logic};
 
-pub fn assert<I: Into<Logic> + Clone, A: Into<Logic> + Clone, E: Into<Logic> + Clone>(
+pub fn assert(
     name: &str,
-    input: &[I],
-    actual: &[A],
-    expected: &[E],
+    input: &[impl Into<Logic> + Clone],
+    actual: &[impl Into<Logic> + Clone],
+    expected: &[impl Into<Logic> + Clone],
 ) {
     assert_monomorphic(
         name,

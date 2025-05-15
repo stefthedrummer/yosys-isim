@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::{fmt::format, ops::Deref};
 
 use yosys_isim::{
     common::{FindByName, SimError},
@@ -91,6 +91,35 @@ pub fn test_dff() {
         sim.simulate()?;
 
         assert_eq!(sim.get(&port_q), [Logic::_0, Logic::_1]);
+
+        Ok(())
+    })()
+    .unwrap()
+}
+
+#[test]
+pub fn test_add() {
+    (|| -> Result<(), SimError> {
+        let module = TEST_GATES_SV.deref().iter().find_by_name("Add")?;
+
+        let mut sim: Sim<'_> = Sim::new(&module);
+        let port_a = sim.get_port::<8>("a")?;
+        let port_b = sim.get_port::<8>("b")?;
+        let port_y = sim.get_port::<8>("y")?;
+
+        for int_a in 0..15 {
+            for int_b in 0..15 {
+                let a = Logic::to_bits::<8>(int_a);
+                let b = Logic::to_bits::<8>(int_b);
+                let expected = Logic::to_bits::<8>(int_a + int_b);
+
+                sim.set(&port_a, a);
+                sim.set(&port_b, b);
+                sim.simulate()?;
+
+                assert_eq!(sim.get(&port_y), expected);
+            }
+        }
 
         Ok(())
     })()

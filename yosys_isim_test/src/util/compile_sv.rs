@@ -17,7 +17,8 @@ fn do_compile(sv_file: &str) -> Result<Vec<Module>, SimError> {
     yosys.args([
         "-p",
         &format!(
-            "read_verilog -sv {}; proc; flatten; opt; synth; write_json target/{}.json;",
+            // "read_verilog -sv {}; proc; flatten; opt; synth; write_json target/{}.json;",
+            "read_verilog -sv {}; proc; flatten; write_json target/{}.json;",
             sv_file, netlist_file
         ),
     ]);

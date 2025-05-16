@@ -1,5 +1,7 @@
 #![allow(non_upper_case_globals)]
 
+use core::str;
+
 use smallvec::smallvec;
 
 use crate::{Vec2, make_enum};
@@ -17,10 +19,18 @@ impl Logic {
         bits
     }
 
-    const fn from(value: bool) -> Self {
+    const fn from_bool(value: bool) -> Logic {
         match value {
             false => Self::_0,
             true => Self::_1,
+        }
+    }
+
+    pub fn from_str(value: &str) -> Option<Logic> {
+        match value {
+            "0" => Some(Logic::_0),
+            "1" => Some(Logic::_1),
+            _ => None,
         }
     }
 
@@ -38,7 +48,7 @@ impl Logic {
         }
         let first = logic[0];
         match logic.iter().all(|it| *it == first) {
-            true => Self::from(first),
+            true => Self::from_bool(first),
             false => Logic::X,
         }
     }
@@ -60,7 +70,7 @@ impl Logic {
 
 impl From<bool> for Logic {
     fn from(value: bool) -> Self {
-        Logic::from(value)
+        Logic::from_bool(value)
     }
 }
 

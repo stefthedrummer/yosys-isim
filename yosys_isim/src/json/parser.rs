@@ -1,6 +1,10 @@
 use std::fs::File;
 use std::io::BufReader;
 
+use serde_json::Value;
+use smallvec::smallvec;
+
+use crate::Logic;
 use crate::TernaryOp;
 use crate::UnaryOp;
 use crate::common::FindByName;
@@ -104,6 +108,29 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
         out_ports,
     })
 }
+
+// fn parse_wires(json_wires: &Vec4<Value>) -> Result<Vec4<model::Wire>, SimError> {
+//     let mut wires = smallvec![model::Wire::Const(crate::Logic::X) ; json_wires.len()];
+//     for i in 0..wires.len() {
+//         wires[i] = match &json_wires[i] {
+//             Value::Number(h_wire) => model::Wire::Handle(h_wire.as_u64().unwrap() as usize),
+//             Value::String(logic) => match Logic::from_str(&logic) {
+//                 Some(logic) => model::Wire::Const(logic),
+//                 None => {
+//                     return Err(SimError::JsonError {
+//                         msg: format!("illegal wire constant [{}]", json_wires[i]),
+//                     });
+//                 }
+//             },
+//             _ => {
+//                 return Err(SimError::JsonError {
+//                     msg: format!("illegal wire [{}]", json_wires[i]),
+//                 });
+//             }
+//         }
+//     }
+//     Ok(wires)
+// }
 
 fn parse_binary(
     cell_name: &str,

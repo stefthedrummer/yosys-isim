@@ -9,6 +9,12 @@ use crate::{
 pub type HCell = usize;
 pub type HWire = usize;
 
+// #[derive(Debug, Copy, Clone)]
+// pub enum Wire {
+//     Handle(HWire),
+//     Const(Logic),
+// }
+
 #[derive(Debug, Clone)]
 pub struct Module {
     pub name: String,

@@ -19,7 +19,7 @@ pub struct Module {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Port {
     pub direction: PortDirection,
-    pub bits: Vec4<usize>,
+    pub bits: Vec4<Value>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
@@ -34,7 +34,7 @@ pub enum PortDirection {
 pub struct Cell {
     pub r#type: CellType,
     pub port_directions: HashMap<String, PortDirection>,
-    pub connections: HashMap<String, Vec4<usize>>,
+    pub connections: HashMap<String, Vec4<Value>>,
     pub parameters: HashMap<String, Value>,
 }
 

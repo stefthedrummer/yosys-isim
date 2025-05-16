@@ -2,12 +2,14 @@ use crate::common::HasName;
 use crate::common::SimError;
 use crate::common::Vec4;
 use crate::json;
-use crate::model::HWire;
+use crate::json::parse_wires;
+use crate::model::HWireOrLogic;
 use crate::model::{self};
+use std::marker::PhantomData;
 
 pub(super) struct Connection<'a> {
     pub name: &'a String,
-    pub wires: &'a Vec4<HWire>,
+    pub wires: Vec4<HWireOrLogic>,
     pub direction: json::PortDirection,
     pub signed: bool,
     pub polarity: u32,
@@ -21,11 +23,20 @@ impl<'a> HasName for Connection<'a> {
 }
 
 impl<'a> Connection<'a> {
-    pub(super) fn to_port(&self) -> model::Port {
-        model::Port {
+    pub(super) fn to_in_port(&self) -> Result<model::CellInPort, SimError> {
+        Ok(model::CellInPort {
             name: self.name.to_string(),
-            h_wires: self.wires.clone(),
-        }
+            wires: self.wires.clone(),
+            dir: PhantomData,
+        })
+    }
+
+    pub(super) fn to_out_port(&self) -> Result<model::CellOutPort, SimError> {
+        Ok(model::CellOutPort {
+            name: self.name.to_string(),
+            wires: HWireOrLogic::only_HWires(&self.wires)?,
+            dir: PhantomData,
+        })
     }
 }
 
@@ -36,7 +47,7 @@ pub(super) fn parse_connections(json_cell: &json::Cell) -> Result<Vec4<Connectio
         connections.push(Connection {
             name: &name,
             direction: json::PortDirection::Input,
-            wires: &wires,
+            wires: parse_wires(&wires)?,
             signed: false,
             polarity: 1,
             width: 1,

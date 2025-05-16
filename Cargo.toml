@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["yosys_isim", "yosys_isim_test", "yosys_isim_napi"]
+members = ["yosys_isim", "yosys_isim_test"] # "yosys_isim_napi"
 
 [workspace.dependencies]
 smallvec = { version = "1.15.0", features = ["serde"] }

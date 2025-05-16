@@ -37,24 +37,24 @@ pub fn test_nor() {
 }
 
 #[allow(unused)]
-pub fn do_test_binary_op<const W: usize>(
+pub fn do_test_binary_op<const L: usize>(
     module_name: &str,
     eval: fn(bool, bool) -> bool,
 ) -> Result<(), SimError> {
     let module = TEST_GATES_SV.deref().iter().find_by_name(module_name)?;
 
     for (a, b) in [(0, 0), (0, 1), (1, 0), (1, 1)] {
+        let port_a = module.get_in_port::<L>("a")?;
+        let port_b = module.get_in_port::<L>("b")?;
+        let port_y = module.get_out_port::<L>("y")?;
         let mut sim = Sim::new(&module);
-        let port_a = sim.get_port::<W>("a")?;
-        let port_b = sim.get_port::<W>("b")?;
-        let port_y = sim.get_port::<W>("y")?;
 
-        sim.set(&port_a, [a; W]);
-        sim.set(&port_b, [b; W]);
+        sim.set(&port_a, [a; L]);
+        sim.set(&port_b, [b; L]);
         sim.simulate()?;
-        let y: [Logic; W] = sim.get(&port_y);
+        let y: [Logic; L] = sim.get(&port_y);
 
-        assert(module_name, &[a, b], &y, &[eval(a > 0, b > 0); W]);
+        assert(module_name, &[a, b], &y, &[eval(a > 0, b > 0); L]);
     }
 
     Ok(())
@@ -65,10 +65,10 @@ pub fn test_dff() {
     (|| -> Result<(), SimError> {
         let module = TEST_GATES_SV.deref().iter().find_by_name("Dff")?;
 
+        let port_c = module.get_in_port::<1>("c")?;
+        let port_d = module.get_in_port::<2>("d")?;
+        let port_q = module.get_out_port::<2>("q")?;
         let mut sim: Sim<'_> = Sim::new(&module);
-        let port_c = sim.get_port::<1>("c")?;
-        let port_d = sim.get_port::<2>("d")?;
-        let port_q = sim.get_port::<2>("q")?;
 
         assert_eq!(sim.get(&port_q), [Logic::X; 2]);
 
@@ -102,10 +102,10 @@ pub fn test_add() {
     (|| -> Result<(), SimError> {
         let module = TEST_GATES_SV.deref().iter().find_by_name("Add")?;
 
+        let port_a = module.get_in_port::<8>("a")?;
+        let port_b = module.get_in_port::<8>("b")?;
+        let port_y = module.get_out_port::<8>("y")?;
         let mut sim: Sim<'_> = Sim::new(&module);
-        let port_a = sim.get_port::<8>("a")?;
-        let port_b = sim.get_port::<8>("b")?;
-        let port_y = sim.get_port::<8>("y")?;
 
         for int_a in 0..15 {
             for int_b in 0..15 {

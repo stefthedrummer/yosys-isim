@@ -52,7 +52,7 @@ impl Logic {
         }
     }
 
-    pub fn eq<const W: usize>(a: &[Logic; W], b: &[Logic; W]) -> bool {
+    pub fn eq<const L: usize>(a: &[Logic; L], b: &[Logic; L]) -> bool {
         let len_a = a.len();
         let len_b = b.len();
         if len_a != len_b {

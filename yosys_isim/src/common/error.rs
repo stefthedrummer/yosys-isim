@@ -10,4 +10,6 @@ pub enum SimError {
     JsonError { msg: String },
     #[error("SimError [{msg:?}]")]
     SimError { msg: String },
+    #[error("IllegalState")]
+    IllegalState { msg: String },
 }

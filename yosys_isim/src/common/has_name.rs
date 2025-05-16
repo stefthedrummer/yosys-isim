@@ -3,10 +3,12 @@ use std::ops::Deref;
 
 pub trait HasName {
     fn name(&self) -> &str;
+    const LABEL: &'static str;
 }
 
 pub trait FindByName {
     type Item;
+
     fn find_by_name(self, name: &str) -> Result<Self::Item, SimError>;
 }
 
@@ -16,7 +18,7 @@ impl<T: HasName, Item: Deref<Target = T>, Iter: Iterator<Item = Item>> FindByNam
     fn find_by_name(mut self, name: &str) -> Result<Self::Item, SimError> {
         self.find(|it| it.name().eq(name))
             .ok_or_else(|| SimError::SimError {
-                msg: format!("could not find [{}]", name),
+                msg: format!("could not find {} [{}]", T::LABEL, name),
             })
     }
 }

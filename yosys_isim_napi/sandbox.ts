@@ -8,4 +8,4 @@ const sim = Sim.create(module);
 sim.set("a", [1])
 sim.set("b", [1])
 sim.simulate();
-console.log(sim.get("b", 1))
+console.log(sim.get("y", 1))

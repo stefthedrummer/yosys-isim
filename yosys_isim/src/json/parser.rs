@@ -5,10 +5,17 @@ use crate::json;
 use crate::json::Connection;
 use crate::json::parse_connections;
 use crate::model;
+use crate::model::HWireOrLogic;
+use crate::model::ModuleInPort;
+use crate::model::ModuleOutPort;
 use crate::ops;
 use crate::sim::Edge;
+use crate::sim::Logic;
+use serde_json::Value;
+use smallvec::smallvec;
 use std::fs::File;
 use std::io::BufReader;
+use std::marker::PhantomData;
 
 pub fn parse_modules_from_file(file_name: &str) -> Result<Vec<model::Module>, SimError> {
     parse_netlist(&serde_json::from_reader(BufReader::new(File::open(
@@ -27,21 +34,26 @@ pub fn parse_netlist(json_module: &json::Netlist) -> Result<Vec<model::Module>, 
 #[rustfmt::skip]
 fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module, SimError> {
     let mut cells: Vec<model::Cell> = Vec::new();
-    let mut in_ports: Vec4<model::Port> = Vec4::new();
-    let mut out_ports: Vec4<model::Port> = Vec4::new();
+    let mut in_ports: Vec4<model::ModuleInPort> = Vec4::new();
+    let mut out_ports: Vec4<model::ModuleOutPort> = Vec4::new();
 
     for (port_name, json_port) in json_module.ports.iter() {
-        let port = model::Port {
-            name: port_name.to_string(),
-            h_wires: json_port.bits.clone(),
-        };
-
+        let name: String = port_name.to_string();
+        let wires = HWireOrLogic::only_HWires(&parse_wires(&json_port.bits)?)?;
         match json_port.direction {
-            json::PortDirection::Input => &mut in_ports,
-            json::PortDirection::Output => &mut out_ports,
-        }
-        .push(port);
+            json::PortDirection::Input => in_ports.push(ModuleInPort {
+                name,
+                wires ,
+                dir: PhantomData,
+            }),
+            json::PortDirection::Output => out_ports.push(ModuleOutPort {
+                name,
+                wires ,
+                dir: PhantomData,
+            }),
+        };
     }
+
 
     for (cell_name, json_cell) in json_module.cells.iter() {
         let cell: model::Cell =  match json_cell.r#type {
@@ -101,28 +113,29 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
     })
 }
 
-// fn parse_wires(json_wires: &Vec4<Value>) -> Result<Vec4<model::Wire>, SimError> {
-//     let mut wires = smallvec![model::Wire::Const(crate::Logic::X) ; json_wires.len()];
-//     for i in 0..wires.len() {
-//         wires[i] = match &json_wires[i] {
-//             Value::Number(h_wire) => model::Wire::Handle(h_wire.as_u64().unwrap() as usize),
-//             Value::String(logic) => match Logic::from_str(&logic) {
-//                 Some(logic) => model::Wire::Const(logic),
-//                 None => {
-//                     return Err(SimError::JsonError {
-//                         msg: format!("illegal wire constant [{}]", json_wires[i]),
-//                     });
-//                 }
-//             },
-//             _ => {
-//                 return Err(SimError::JsonError {
-//                     msg: format!("illegal wire [{}]", json_wires[i]),
-//                 });
-//             }
-//         }
-//     }
-//     Ok(wires)
-// }
+#[allow(non_snake_case)]
+pub(super) fn parse_wires(json_wires: &Vec4<Value>) -> Result<Vec4<model::HWireOrLogic>, SimError> {
+    let mut wires = smallvec![model::HWireOrLogic::Logic( Logic::X) ; json_wires.len()];
+    for i in 0..wires.len() {
+        wires[i] = match &json_wires[i] {
+            Value::Number(h_wire) => model::HWireOrLogic::HWire(h_wire.as_u64().unwrap() as usize),
+            Value::String(logic) => match Logic::from_str(&logic) {
+                Some(logic) => model::HWireOrLogic::Logic(logic),
+                None => {
+                    return Err(SimError::JsonError {
+                        msg: format!("illegal wire constant [{}]", json_wires[i]),
+                    });
+                }
+            },
+            _ => {
+                return Err(SimError::JsonError {
+                    msg: format!("illegal wire [{}]", json_wires[i]),
+                });
+            }
+        }
+    }
+    Ok(wires)
+}
 
 fn parse_binary(
     cell_name: &str,
@@ -146,9 +159,9 @@ fn parse_binary(
         name: cell_name.to_string(),
         op,
         // width: conn_y.width,
-        port_a: conn_a.to_port(),
-        port_b: conn_b.to_port(),
-        port_y: conn_y.to_port(),
+        port_a: conn_a.to_in_port()?,
+        port_b: conn_b.to_in_port()?,
+        port_y: conn_y.to_out_port()?,
     }))
 }
 
@@ -166,8 +179,8 @@ fn parse_unary(
     Ok(model::Cell::UnaryOpCell(model::UnaryOpCell {
         name: cell_name.to_string(),
         op: op,
-        port_a: conn_a.to_port(),
-        port_y: conn_y.to_port(),
+        port_a: conn_a.to_in_port()?,
+        port_y: conn_y.to_out_port()?,
     }))
 }
 
@@ -196,9 +209,9 @@ fn parse_flipflop(
         } else {
             Edge::NEGATIVE
         }),
-        port_clk: conn_clk.to_port(),
-        port_d: conn_d.to_port(),
-        port_q: conn_q.to_port(),
+        port_clk: conn_clk.to_in_port()?,
+        port_d: conn_d.to_in_port()?,
+        port_q: conn_q.to_out_port()?,
     }))
 }
 
@@ -221,9 +234,9 @@ fn parse_add(
 
     Ok(model::Cell::AddCell(model::AddCell {
         name: cell_name.to_string(),
-        port_a: conn_a.to_port(),
-        port_b: conn_b.to_port(),
-        port_y: conn_y.to_port(),
+        port_a: conn_a.to_in_port()?,
+        port_b: conn_b.to_in_port()?,
+        port_y: conn_y.to_out_port()?,
     }))
 }
 
@@ -250,9 +263,9 @@ fn parse_ternary(
     Ok(model::Cell::TernaryOpCell(model::TernaryOpCell {
         name: cell_name.to_string(),
         op: op,
-        port_a: conn_a.to_port(),
-        port_b: conn_b.to_port(),
-        port_c: conn_c.to_port(),
-        port_y: conn_y.to_port(),
+        port_a: conn_a.to_in_port()?,
+        port_b: conn_b.to_in_port()?,
+        port_c: conn_c.to_in_port()?,
+        port_y: conn_y.to_out_port()?,
     }))
 }

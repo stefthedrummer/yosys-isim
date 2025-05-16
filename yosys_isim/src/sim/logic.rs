@@ -52,7 +52,7 @@ impl Logic {
         }
     }
 
-    pub fn eq<const W: usize>(a: &[Logic; W], b: &[Logic; W]) -> bool {
+    pub fn eq<const L: usize>(a: &[Logic; L], b: &[Logic; L]) -> bool {
         let len_a = a.len();
         let len_b = b.len();
         if len_a != len_b {
@@ -87,7 +87,10 @@ macro_rules! from_impl {
     };
 }
 from_impl![u8];
+from_impl![i8];
 from_impl![u32];
+from_impl![u64];
 from_impl![i32];
+from_impl![i64];
 from_impl![usize];
 from_impl![isize];

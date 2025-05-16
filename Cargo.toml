@@ -17,8 +17,8 @@ static_assertions = "1.1.0"
 paste = "1.0.15"
 lazy_static = { version = "1.5.0" }
 
-napi = { version = "2.12.2", default-features = false, features = ["napi3"] }
-napi-derive = "2.12.2"
+napi = { version = "2", default-features = false, features = ["napi9"] }
+napi-derive = "2"
 
 
 [profile.release]

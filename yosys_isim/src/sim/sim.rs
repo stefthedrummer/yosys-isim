@@ -1,18 +1,18 @@
-use crate::common::FindByName;
 use crate::common::Set4;
 use crate::common::SimError;
-use crate::common::Vec4;
 use crate::model::HCell;
 use crate::model::HWire;
+use crate::model::HWireOrLogic;
 use crate::model::Module;
+use crate::model::ModuleInPort;
+use crate::model::ModuleOutPort;
+use crate::sim::CellSimModel;
+use crate::sim::CellWires;
 use crate::sim::Edge;
 use crate::sim::Logic;
 use crate::sim::OP_FNS;
 use crate::sim::OpFns;
-use crate::sim::SimCell;
-use crate::sim::SimPort;
 use core::panic;
-use smallvec::smallvec;
 use std::collections::VecDeque;
 
 pub struct Sim<'m> {
@@ -36,16 +36,37 @@ pub struct SimState {
 }
 
 impl SimState {
-    pub fn get_edges(&self, h_wires: &[HWire], edges: &mut [Edge]) {
+    pub fn get_edges(&self, h_wires: &[HWireOrLogic], edges: &mut [Edge]) {
         if h_wires.len() != edges.len() {
             panic!("lengths do not match");
         }
 
         for i in 0..h_wires.len() {
-            edges[i] = Edge::of(
-                self.wires[StateRef::Prev as usize][h_wires[i]],
-                self.wires[StateRef::Cur as usize][h_wires[i]],
-            );
+            edges[i] = match h_wires[i] {
+                HWireOrLogic::HWire(h_wire) => Edge::of(
+                    self.wires[StateRef::Prev as usize][h_wire],
+                    self.wires[StateRef::Cur as usize][h_wire],
+                ),
+                HWireOrLogic::Logic(_) => Edge::NONE,
+            };
+        }
+    }
+
+    pub fn get_wires_or_logic(
+        &self,
+        state: StateRef,
+        h_wires: &[HWireOrLogic],
+        logics: &mut [Logic],
+    ) {
+        if h_wires.len() != logics.len() {
+            panic!("lengths do not match");
+        }
+
+        for i in 0..h_wires.len() {
+            logics[i] = match h_wires[i] {
+                HWireOrLogic::HWire(hwire) => self.wires[state as usize][hwire],
+                HWireOrLogic::Logic(logic) => logic,
+            };
         }
     }
 
@@ -150,65 +171,30 @@ impl<'m> Sim<'m> {
 
     pub fn set<E: Copy + Into<Logic>, const L: usize>(
         &mut self,
-        port: &SimPort<L>,
+        port: &ModuleInPort<L>,
         logics: [E; L],
     ) {
         self.sim_state
-            .set_wires(StateRef::Cur, &port.h_wires, &logics);
+            .set_wires(StateRef::Cur, &port.wires, &logics);
     }
 
-    pub fn set_raw(
-        &mut self,
-        port_name: &str,
-        logics: &[impl Into<Logic> + Copy],
-    ) -> Result<(), SimError> {
-        let h_wires = self.get_port_raw(port_name, logics.len())?;
-        self.sim_state.set_wires(StateRef::Cur, &h_wires, &logics);
-        Ok(())
+    pub fn set_dynamic<E: Copy + Into<Logic>>(&mut self, port: &ModuleInPort, logics: &[E]) {
+        self.sim_state
+            .set_wires(StateRef::Cur, &port.wires, &logics);
     }
 
-    pub fn get<const L: usize>(&mut self, port: &SimPort<L>) -> [Logic; L] {
+    pub fn get<const L: usize>(&mut self, port: &ModuleOutPort<L>) -> [Logic; L] {
         let mut logics: [Logic; L] = [Logic::X; L];
         self.sim_state
-            .get_wires(StateRef::Cur, &port.h_wires, &mut logics);
+            .get_wires(StateRef::Cur, &port.wires, &mut logics);
         logics
     }
 
-    pub fn get_raw(&mut self, port_name: &str, width: usize) -> Result<Vec4<Logic>, SimError> {
-        let h_wires = self.get_port_raw(port_name, width)?;
-        let mut logics = smallvec![Logic::X ; width ];
+    pub fn get_dynamic(&mut self, port: &ModuleOutPort) -> Vec<Logic> {
+        let mut logics = vec![Logic::X; port.wires.len()];
         self.sim_state
-            .get_wires(StateRef::Cur, &h_wires, &mut logics);
-        Ok(logics)
-    }
-
-    pub fn get_port<const W: usize>(&self, name: &str) -> Result<SimPort<W>, SimError> {
-        Ok(SimPort {
-            h_wires: self.get_port_raw(name, W)?,
-        })
-    }
-
-    fn get_port_raw(&self, name: &str, width: usize) -> Result<Vec4<HWire>, SimError> {
-        let all_ports = self
-            .module
-            .in_ports
-            .iter()
-            .chain(self.module.out_ports.iter());
-
-        let port = all_ports.find_by_name(name)?;
-
-        if port.h_wires.len() != width {
-            Err(SimError::SimError {
-                msg: format!(
-                    "wrong port width [{}] on [{}],  actual is [{}]",
-                    width,
-                    name,
-                    port.h_wires.len()
-                ),
-            })?;
-        }
-
-        Ok(port.h_wires.iter().cloned().collect())
+            .get_wires(StateRef::Cur, &port.wires, &mut logics);
+        logics
     }
 }
 
@@ -216,10 +202,8 @@ fn compute_num_wires(module: &Module) -> usize {
     let mut num_wires: usize = 0;
 
     for cell in module.cells.iter() {
-        for port in cell.in_ports().iter().chain(cell.out_ports().iter()) {
-            for wire in port.h_wires.iter() {
-                num_wires = usize::max(num_wires, *wire + 1);
-            }
+        for h_wire in CellWires::get_all_h_wires(cell) {
+            num_wires = usize::max(num_wires, h_wire + 1);
         }
     }
 
@@ -242,17 +226,14 @@ fn compute_wire_graph(module: &Module, num_wires: usize) -> Vec<WireNode> {
     ];
 
     for (h_cell, cell) in module.cells.iter().enumerate() {
-        for in_port in cell.in_ports().iter() {
-            for wire in in_port.h_wires.iter() {
-                wire_nodes[*wire].h_out_cells.insert(h_cell);
-            }
+        for h_wire in CellWires::get_in_port_h_wires(cell) {
+            wire_nodes[h_wire].h_out_cells.insert(h_cell);
         }
-        for out_port in cell.out_ports().iter() {
-            for wire in out_port.h_wires.iter() {
-                match wire_nodes[*wire].h_in_cell {
-                    Some(_) => panic!("wire driven my multiple cells"),
-                    None => wire_nodes[*wire].h_in_cell = Some(h_cell),
-                }
+
+        for h_wire in CellWires::get_out_port_h_wires(cell) {
+            match wire_nodes[h_wire].h_in_cell {
+                Some(_) => panic!("wire driven my multiple cells"),
+                None => wire_nodes[h_wire].h_in_cell = Some(h_cell),
             }
         }
     }
@@ -335,7 +316,7 @@ fn compute_input_cells(module: &Module, wire_nodes: &Vec<WireNode>) -> Set4<HCel
     let mut input_cells: Set4<HWire> = Set4::new();
 
     for in_port in module.in_ports.iter() {
-        for h_wire in in_port.h_wires.iter() {
+        for h_wire in in_port.wires.iter() {
             //
             for h_out_cell in wire_nodes[*h_wire].h_out_cells.iter() {
                 input_cells.insert(*h_out_cell);

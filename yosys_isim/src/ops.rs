@@ -1,7 +1,10 @@
 #![allow(non_upper_case_globals)]
-use crate::{BINARY_OP_FNS, Logic, UNARY_FNS, make_enum};
+use crate::define_enum;
+use crate::sim::BINARY_OP_FNS;
+use crate::sim::Logic;
+use crate::sim::UNARY_FNS;
 
-make_enum![enum UnaryOp repr(u8) {
+define_enum![enum UnaryOp repr(u8) {
     NOT,
     BUF,
 }];
@@ -15,7 +18,7 @@ impl UnaryOp {
     }
 }
 
-make_enum![enum BinaryOp repr(u8) {
+define_enum![enum BinaryOp repr(u8) {
     AND,
     OR,
     XOR,
@@ -41,7 +44,7 @@ impl BinaryOp {
     }
 }
 
-make_enum![enum TernaryOp repr(u8) {
+define_enum![enum TernaryOp repr(u8) {
     AND_OR_INV,
     OR_AND_INV,
 }];

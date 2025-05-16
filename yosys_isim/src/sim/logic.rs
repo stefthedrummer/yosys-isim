@@ -1,12 +1,11 @@
 #![allow(non_upper_case_globals)]
 
+use crate::common::Vec2;
+use crate::define_enum;
 use core::str;
-
 use smallvec::smallvec;
 
-use crate::{Vec2, make_enum};
-
-make_enum![enum Logic repr(u8) {
+define_enum![enum Logic repr(u8) {
  _0, _1 , X,
 }];
 

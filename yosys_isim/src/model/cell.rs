@@ -1,33 +1,9 @@
+use crate::model::Port;
+use crate::ops::BinaryOp;
+use crate::ops::TernaryOp;
+use crate::ops::UnaryOp;
+use crate::sim::Edge;
 use enum_dispatch::enum_dispatch;
-
-use crate::{
-    BinaryOp, TernaryOp, UnaryOp,
-    common::{HasName, Vec4},
-    sim::Edge,
-};
-
-pub type HCell = usize;
-pub type HWire = usize;
-
-// #[derive(Debug, Copy, Clone)]
-// pub enum Wire {
-//     Handle(HWire),
-//     Const(Logic),
-// }
-
-#[derive(Debug, Clone)]
-pub struct Module {
-    pub name: String,
-    pub cells: Vec<Cell>,
-    pub in_ports: Vec4<Port>,
-    pub out_ports: Vec4<Port>,
-}
-
-impl HasName for Module {
-    fn name(&self) -> &str {
-        &self.name
-    }
-}
 
 #[derive(Debug, Clone)]
 #[enum_dispatch(SimCell)]
@@ -81,16 +57,4 @@ pub struct TernaryOpCell {
     pub port_b: Port,
     pub port_c: Port,
     pub port_y: Port,
-}
-
-#[derive(Debug, Clone)]
-pub struct Port {
-    pub name: String,
-    pub h_wires: Vec4<HWire>,
-}
-
-impl HasName for Port {
-    fn name(&self) -> &str {
-        &self.name
-    }
 }

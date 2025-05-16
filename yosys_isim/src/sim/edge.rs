@@ -1,10 +1,9 @@
 #![allow(non_upper_case_globals)]
 
-use crate::make_enum;
+use crate::define_enum;
+use crate::sim::Logic;
 
-use super::Logic;
-
-make_enum![enum Edge repr(u8) {
+define_enum![enum Edge repr(u8) {
     NONE,
     X,
     POSITIVE,

@@ -1,3 +1,6 @@
 {
-    "rust-analyzer.lens.implementations.enable": false
+    "rust-analyzer.lens.implementations.enable": false,
+    "rust-analyzer.imports.prefix": "crate",
+    "rust-analyzer.imports.granularity.enforce": false,
+    "rust-analyzer.imports.granularity.group": "item",
 }

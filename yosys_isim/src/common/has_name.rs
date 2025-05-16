@@ -1,12 +1,9 @@
+use crate::common::SimError;
 use std::ops::Deref;
-
-use super::SimError;
 
 pub trait HasName {
     fn name(&self) -> &str;
 }
-
-
 
 pub trait FindByName {
     type Item;

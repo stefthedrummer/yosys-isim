@@ -2,8 +2,8 @@ pub struct JsError {
     message: String,
 }
 
-impl From<yosys_isim::SimError> for JsError {
-    fn from(value: yosys_isim::SimError) -> Self {
+impl From<yosys_isim::common::SimError> for JsError {
+    fn from(value: yosys_isim::common::SimError) -> Self {
         JsError {
             message: format!("{:?}", value),
         }

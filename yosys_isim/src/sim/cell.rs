@@ -1,15 +1,19 @@
-use crate::{
-    BinaryOp, TernaryOpCell, UnaryOp,
-    common::Vec4,
-    model::{AddCell, Cell, DFlipFlopCell},
-    sim::{Edge, SimState, WireState},
-};
+use crate::common::Vec4;
+use crate::model::AddCell;
+use crate::model::BinaryOpCell;
+use crate::model::Cell;
+use crate::model::DFlipFlopCell;
+use crate::model::Port;
+use crate::model::TernaryOpCell;
+use crate::model::UnaryOpCell;
+use crate::ops::BinaryOp;
+use crate::ops::UnaryOp;
+use crate::sim::Edge;
+use crate::sim::Logic;
+use crate::sim::SimState;
+use crate::sim::StateRef;
 use enum_dispatch::enum_dispatch;
 use smallvec::smallvec;
-
-use crate::model::{BinaryOpCell, Port, UnaryOpCell};
-
-use super::Logic;
 
 #[enum_dispatch]
 pub trait SimCell {
@@ -33,7 +37,7 @@ impl SimCell for UnaryOpCell {
         let mut a: Vec4<Logic> = smallvec![Logic::X; self.port_a.h_wires.len()];
         let mut y: Vec4<Logic> = smallvec![Logic::X; self.port_y.h_wires.len()];
 
-        sim.get_wires(WireState::Cur, &self.port_a.h_wires, &mut a);
+        sim.get_wires(StateRef::Cur, &self.port_a.h_wires, &mut a);
 
         let not = &sim.ops.unary[UnaryOp::NOT];
 
@@ -41,7 +45,7 @@ impl SimCell for UnaryOpCell {
             y[i] = not[a[i]];
         }
 
-        sim.set_wires(WireState::Cur, &self.port_y.h_wires, &y);
+        sim.set_wires(StateRef::Cur, &self.port_y.h_wires, &y);
     }
 }
 
@@ -60,15 +64,15 @@ impl SimCell for BinaryOpCell {
         let mut b: Vec4<Logic> = smallvec![Logic::X; self.port_b.h_wires.len()];
         let mut y: Vec4<Logic> = smallvec![Logic::X; self.port_y.h_wires.len()];
 
-        sim.get_wires(WireState::Cur, &self.port_a.h_wires, &mut a);
-        sim.get_wires(WireState::Cur, &self.port_b.h_wires, &mut b);
+        sim.get_wires(StateRef::Cur, &self.port_a.h_wires, &mut a);
+        sim.get_wires(StateRef::Cur, &self.port_b.h_wires, &mut b);
 
         let op = &sim.ops.binary[self.op];
         for i in 0..a.len() {
             y[i] = op[(a[i], b[i])];
         }
 
-        sim.set_wires(WireState::Cur, &self.port_y.h_wires, &y);
+        sim.set_wires(StateRef::Cur, &self.port_y.h_wires, &y);
     }
 }
 
@@ -94,7 +98,7 @@ impl SimCell for DFlipFlopCell {
             Edge::POSITIVE | Edge::NEGATIVE => {
                 if clk[0] == self.polarity {
                     let mut d: Vec4<Logic> = smallvec![Logic::X; self.port_d.h_wires.len()];
-                    sim.get_wires(WireState::Cur, &self.port_d.h_wires, &mut d);
+                    sim.get_wires(StateRef::Cur, &self.port_d.h_wires, &mut d);
                     sim.set_wires_deferred(&self.port_q.h_wires, &mut d);
                 }
             }
@@ -118,8 +122,8 @@ impl SimCell for AddCell {
         let mut b: Vec4<Logic> = smallvec![Logic::X; self.port_b.h_wires.len()];
         let mut y: Vec4<Logic> = smallvec![Logic::X; self.port_y.h_wires.len()];
 
-        sim.get_wires(WireState::Cur, &self.port_a.h_wires, &mut a);
-        sim.get_wires(WireState::Cur, &self.port_b.h_wires, &mut b);
+        sim.get_wires(StateRef::Cur, &self.port_a.h_wires, &mut a);
+        sim.get_wires(StateRef::Cur, &self.port_b.h_wires, &mut b);
 
         let xor = &sim.ops.binary[BinaryOp::XOR];
         let and = &sim.ops.binary[BinaryOp::AND];
@@ -133,7 +137,7 @@ impl SimCell for AddCell {
             c = or[(and[(a_xor_b, c)], and[(a[i], b[i])])];
         }
 
-        sim.set_wires(WireState::Cur, &self.port_y.h_wires, &y);
+        sim.set_wires(StateRef::Cur, &self.port_y.h_wires, &y);
     }
 }
 
@@ -153,9 +157,9 @@ impl SimCell for TernaryOpCell {
         let mut c: Vec4<Logic> = smallvec![Logic::X; self.port_c.h_wires.len()];
         let mut y: Vec4<Logic> = smallvec![Logic::X; self.port_y.h_wires.len()];
 
-        sim.get_wires(WireState::Cur, &self.port_a.h_wires, &mut a);
-        sim.get_wires(WireState::Cur, &self.port_b.h_wires, &mut b);
-        sim.get_wires(WireState::Cur, &self.port_c.h_wires, &mut c);
+        sim.get_wires(StateRef::Cur, &self.port_a.h_wires, &mut a);
+        sim.get_wires(StateRef::Cur, &self.port_b.h_wires, &mut b);
+        sim.get_wires(StateRef::Cur, &self.port_c.h_wires, &mut c);
 
         let op = &sim.ops.ternary[self.op];
 
@@ -163,6 +167,6 @@ impl SimCell for TernaryOpCell {
             y[i] = op[(a[i], b[i], c[i])];
         }
 
-        sim.set_wires(WireState::Cur, &self.port_y.h_wires, &y);
+        sim.set_wires(StateRef::Cur, &self.port_y.h_wires, &y);
     }
 }

@@ -1,7 +1,6 @@
 mod collections;
 mod error;
 mod has_name;
-mod macros;
 
 pub use collections::*;
 pub use error::*;

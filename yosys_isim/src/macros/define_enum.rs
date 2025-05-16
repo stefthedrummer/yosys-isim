@@ -7,7 +7,7 @@ macro_rules! count {
 }
 
 #[macro_export]
-macro_rules! make_enum {
+macro_rules! define_enum {
     (enum $name:ident repr($repr:ident) { $($variants:ident ,)+ }) => {
         paste::paste! {
             #[repr($repr)]

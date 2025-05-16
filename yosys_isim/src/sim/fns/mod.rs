@@ -2,12 +2,13 @@ pub mod binary;
 pub mod ternary;
 pub mod unary;
 
+use crate::ops::BinaryOp_Len;
+use crate::ops::TernaryOp_Len;
+use crate::ops::UnaryOp_Len;
 pub use binary::*;
+use lazy_static::lazy_static;
 pub use ternary::*;
 pub use unary::*;
-
-use crate::{BinaryOp_Len, TernaryOp_Len, UnaryOp_Len};
-use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref UNARY_FNS: [UnaryOpFn; UnaryOp_Len] = UnaryOpFn::compile_all();

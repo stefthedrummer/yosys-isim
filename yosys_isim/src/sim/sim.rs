@@ -1,15 +1,19 @@
+use crate::common::FindByName;
+use crate::common::Set4;
+use crate::common::SimError;
+use crate::common::Vec4;
+use crate::model::HCell;
+use crate::model::HWire;
+use crate::model::Module;
+use crate::sim::Edge;
+use crate::sim::Logic;
+use crate::sim::OP_FNS;
+use crate::sim::OpFns;
+use crate::sim::SimCell;
+use crate::sim::SimPort;
 use core::panic;
-use std::collections::VecDeque;
-
 use smallvec::smallvec;
-
-use crate::{
-    Vec4,
-    common::{FindByName, Set4, SimError},
-    model::{HCell, HWire, Module},
-};
-
-use super::{Edge, Logic, OP_FNS, OpFns, SimCell, SimPort};
+use std::collections::VecDeque;
 
 pub struct Sim<'m> {
     frame: usize,
@@ -20,7 +24,7 @@ pub struct Sim<'m> {
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug)]
-pub enum WireState {
+pub enum StateRef {
     Prev = 0,
     Cur = 1,
 }
@@ -39,13 +43,13 @@ impl SimState {
 
         for i in 0..h_wires.len() {
             edges[i] = Edge::of(
-                self.wires[WireState::Prev as usize][h_wires[i]],
-                self.wires[WireState::Cur as usize][h_wires[i]],
+                self.wires[StateRef::Prev as usize][h_wires[i]],
+                self.wires[StateRef::Cur as usize][h_wires[i]],
             );
         }
     }
 
-    pub fn get_wires(&self, state: WireState, h_wires: &[HWire], logics: &mut [Logic]) {
+    pub fn get_wires(&self, state: StateRef, h_wires: &[HWire], logics: &mut [Logic]) {
         if h_wires.len() != logics.len() {
             panic!("lengths do not match");
         }
@@ -57,7 +61,7 @@ impl SimState {
 
     pub fn set_wires(
         &mut self,
-        state: WireState,
+        state: StateRef,
         h_wires: &[HWire],
         logics: &[impl Into<Logic> + Copy],
     ) {
@@ -113,7 +117,7 @@ impl<'m> Sim<'m> {
             {
                 println!("----------------------------------------------------------------");
                 println!("frame: {:?}.{:?}", self.frame, sub_frame);
-                println!("wires: {:?}", self.sim_state.wires[WireState::Cur as usize]);
+                println!("wires: {:?}", self.sim_state.wires[StateRef::Cur as usize]);
             }
 
             for h_cell in self.update_order.iter() {
@@ -124,12 +128,12 @@ impl<'m> Sim<'m> {
 
             unsafe {
                 let wires = self.sim_state.wires.as_mut_slice() as *mut [Vec<Logic>];
-                (*wires)[WireState::Prev as usize]
-                    .copy_from_slice(&(*wires)[WireState::Cur as usize]);
+                (*wires)[StateRef::Prev as usize]
+                    .copy_from_slice(&(*wires)[StateRef::Cur as usize]);
             }
 
             if self.sim_state.set_wires_deferred.len() > 0 {
-                let cur_wires = &mut self.sim_state.wires[WireState::Cur as usize];
+                let cur_wires = &mut self.sim_state.wires[StateRef::Cur as usize];
                 for (h_wire, logic) in self.sim_state.set_wires_deferred.iter() {
                     cur_wires[*h_wire] = *logic;
                 }
@@ -150,7 +154,7 @@ impl<'m> Sim<'m> {
         logics: [E; L],
     ) {
         self.sim_state
-            .set_wires(WireState::Cur, &port.h_wires, &logics);
+            .set_wires(StateRef::Cur, &port.h_wires, &logics);
     }
 
     pub fn set_raw(
@@ -159,14 +163,14 @@ impl<'m> Sim<'m> {
         logics: &[impl Into<Logic> + Copy],
     ) -> Result<(), SimError> {
         let h_wires = self.get_port_raw(port_name, logics.len())?;
-        self.sim_state.set_wires(WireState::Cur, &h_wires, &logics);
+        self.sim_state.set_wires(StateRef::Cur, &h_wires, &logics);
         Ok(())
     }
 
     pub fn get<const L: usize>(&mut self, port: &SimPort<L>) -> [Logic; L] {
         let mut logics: [Logic; L] = [Logic::X; L];
         self.sim_state
-            .get_wires(WireState::Cur, &port.h_wires, &mut logics);
+            .get_wires(StateRef::Cur, &port.h_wires, &mut logics);
         logics
     }
 
@@ -174,7 +178,7 @@ impl<'m> Sim<'m> {
         let h_wires = self.get_port_raw(port_name, width)?;
         let mut logics = smallvec![Logic::X ; width ];
         self.sim_state
-            .get_wires(WireState::Cur, &h_wires, &mut logics);
+            .get_wires(StateRef::Cur, &h_wires, &mut logics);
         Ok(logics)
     }
 

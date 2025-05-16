@@ -1,13 +1,13 @@
-mod logic;
 mod edge;
-mod sim;
-mod sim_cell;
-mod sim_port;
 mod fns;
+mod logic;
+mod sim;
+mod cell;
+mod port;
 
-pub use logic::*;
 pub use edge::*;
-pub use sim::*;
-pub use sim_cell::*;
-pub use sim_port::*;
 pub use fns::*;
+pub use logic::*;
+pub use sim::*;
+pub use cell::*;
+pub use port::*;

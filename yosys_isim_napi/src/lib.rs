@@ -2,15 +2,15 @@
 mod error;
 
 use error::*;
-
 use napi_derive::napi;
-use yosys_isim as core;
 use yosys_isim::json;
+use yosys_isim::model;
+use yosys_isim::sim;
 
 #[napi]
 pub struct Module {
     pub name: String,
-    ptr: *mut core::Module,
+    ptr: *mut model::Module,
 }
 
 #[napi]
@@ -29,7 +29,7 @@ impl Module {
 
 #[napi]
 pub struct Sim {
-    ptr: *mut core::Sim<'static>,
+    ptr: *mut sim::Sim<'static>,
 }
 
 #[napi]
@@ -37,7 +37,7 @@ impl Sim {
     #[napi]
     pub fn create(module: &Module) -> Sim {
         unsafe {
-            let sim: yosys_isim::Sim<'static> = core::Sim::new(&*module.ptr);
+            let sim: sim::Sim<'static> = sim::Sim::new(&*module.ptr);
             Sim {
                 ptr: Box::into_raw(Box::new(sim)),
             }
@@ -63,9 +63,9 @@ impl Sim {
             Ok(logics
                 .into_iter()
                 .map(|it| match it {
-                    yosys_isim::Logic::_0 => 0,
-                    yosys_isim::Logic::_1 => 1,
-                    yosys_isim::Logic::X => -1,
+                    sim::Logic::_0 => 0,
+                    sim::Logic::_1 => 1,
+                    sim::Logic::X => -1,
                 })
                 .collect())
         }

@@ -1,5 +1,8 @@
-use std::{fs, process::Command};
-use yosys_isim::{common::SimError, json::parse_modules_from_file, model::Module};
+use std::fs;
+use std::process::Command;
+use yosys_isim::common::SimError;
+use yosys_isim::json::parse_modules_from_file;
+use yosys_isim::model::Module;
 
 pub fn compile(sv_file: &str) -> Vec<Module> {
     match do_compile(sv_file) {

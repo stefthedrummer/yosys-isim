@@ -1,5 +1,9 @@
-use crate::{Logic, Logic_Variants, UnaryOp, UnaryOp_Len, UnaryOp_Variants, Vec4};
-
+use crate::common::Vec4;
+use crate::ops::UnaryOp;
+use crate::ops::UnaryOp_Len;
+use crate::ops::UnaryOp_Variants;
+use crate::sim::Logic;
+use crate::sim::Logic_Variants;
 use std::ops::Index;
 
 #[derive(Copy, Clone)]
@@ -55,6 +59,4 @@ impl UnaryOpFn {
 
         Logic::from_bool_set(&out_bool_set)
     }
-
-   
 }

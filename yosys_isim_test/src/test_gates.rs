@@ -1,9 +1,10 @@
-use super::{TEST_GATES_SV, util::assert::assert};
+use crate::TEST_GATES_SV;
+use crate::util::assert::assert;
 use std::ops::Deref;
-use yosys_isim::{
-    common::{FindByName, SimError},
-    sim::{Logic, Sim},
-};
+use yosys_isim::common::FindByName;
+use yosys_isim::common::SimError;
+use yosys_isim::sim::Logic;
+use yosys_isim::sim::Sim;
 
 #[test]
 pub fn test_and() {

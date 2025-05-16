@@ -1,9 +1,9 @@
-use crate::{
-    common::{HasName, SimError, Vec4},
-    model::{self, HWire},
-};
-
-use super::json;
+use crate::common::HasName;
+use crate::common::SimError;
+use crate::common::Vec4;
+use crate::json;
+use crate::model::HWire;
+use crate::model::{self};
 
 pub(super) struct Connection<'a> {
     pub name: &'a String,

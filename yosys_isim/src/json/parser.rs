@@ -1,22 +1,14 @@
-use std::fs::File;
-use std::io::BufReader;
-
-use serde_json::Value;
-use smallvec::smallvec;
-
-use crate::Logic;
-use crate::TernaryOp;
-use crate::UnaryOp;
 use crate::common::FindByName;
 use crate::common::SimError;
 use crate::common::Vec4;
 use crate::json;
+use crate::json::Connection;
+use crate::json::parse_connections;
 use crate::model;
 use crate::ops;
 use crate::sim::Edge;
-
-use super::Connection;
-use super::parse_connections;
+use std::fs::File;
+use std::io::BufReader;
 
 pub fn parse_modules_from_file(file_name: &str) -> Result<Vec<model::Module>, SimError> {
     parse_netlist(&serde_json::from_reader(BufReader::new(File::open(
@@ -164,7 +156,7 @@ fn parse_unary(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str),
-    op: UnaryOp,
+    op: ops::UnaryOp,
 ) -> Result<model::Cell, SimError> {
     let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
 
@@ -239,7 +231,7 @@ fn parse_ternary(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str, &str, &str),
-    op: TernaryOp,
+    op: ops::TernaryOp,
 ) -> Result<model::Cell, SimError> {
     let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
 

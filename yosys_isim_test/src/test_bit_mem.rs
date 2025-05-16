@@ -24,8 +24,6 @@
 //         sim.simulate()?;
 //         sim.set(&write_enable, [0]);
 
-        
-
 //         Ok(())
 //     }()
 //     .unwrap()

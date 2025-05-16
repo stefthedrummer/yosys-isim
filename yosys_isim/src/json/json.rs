@@ -1,9 +1,8 @@
-use std::collections::HashMap;
-
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-
 use crate::common::Vec4;
+use serde::Deserialize;
+use serde::Serialize;
+use serde_json::Value;
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Netlist {

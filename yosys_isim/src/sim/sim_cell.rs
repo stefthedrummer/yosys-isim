@@ -1,5 +1,5 @@
 use crate::{
-    BinaryOp, TernaryOpCell,
+    BinaryOp, TernaryOpCell, UnaryOp,
     common::Vec4,
     model::{AddCell, Cell, DFlipFlopCell},
     sim::{Edge, SimState, WireState},
@@ -7,7 +7,7 @@ use crate::{
 use enum_dispatch::enum_dispatch;
 use smallvec::smallvec;
 
-use crate::model::{BinaryOpCell, NotOpCell, Port};
+use crate::model::{BinaryOpCell, Port, UnaryOpCell};
 
 use super::Logic;
 
@@ -19,7 +19,7 @@ pub trait SimCell {
     fn simulate(&self, sim: &mut SimState);
 }
 
-impl SimCell for NotOpCell {
+impl SimCell for UnaryOpCell {
     fn name(&self) -> &str {
         &self.name
     }
@@ -35,7 +35,7 @@ impl SimCell for NotOpCell {
 
         sim.get_wires(WireState::Cur, &self.port_a.h_wires, &mut a);
 
-        let not = &sim.ops.not;
+        let not = &sim.ops.unary[UnaryOp::NOT];
 
         for i in 0..a.len() {
             y[i] = not[a[i]];

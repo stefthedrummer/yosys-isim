@@ -1,10 +1,8 @@
-#![allow(non_upper_case_globals)]
-
 use enum_dispatch::enum_dispatch;
 
 use crate::{
+    BinaryOp, TernaryOp, UnaryOp,
     common::{HasName, Vec4},
-    make_enum,
     sim::Edge,
 };
 
@@ -28,7 +26,7 @@ impl HasName for Module {
 #[derive(Debug, Clone)]
 #[enum_dispatch(SimCell)]
 pub enum Cell {
-    NotOpCell(NotOpCell),
+    UnaryOpCell(UnaryOpCell),
     BinaryOpCell(BinaryOpCell),
     TernaryOpCell(TernaryOpCell),
     DFlipFlopCell(DFlipFlopCell),
@@ -36,22 +34,12 @@ pub enum Cell {
 }
 
 #[derive(Debug, Clone)]
-pub struct NotOpCell {
+pub struct UnaryOpCell {
     pub name: String,
+    pub op: UnaryOp,
     pub port_a: Port,
     pub port_y: Port,
 }
-
-make_enum![enum BinaryOp repr(u8) {
-    AND,
-    OR,
-    XOR,
-    NAND,
-    NOR,
-    XNOR,
-    AND_NOT,
-    OR_NOT,
-}];
 
 #[derive(Debug, Clone)]
 pub struct BinaryOpCell {
@@ -78,11 +66,6 @@ pub struct AddCell {
     pub port_b: Port,
     pub port_y: Port,
 }
-
-make_enum![enum TernaryOp repr(u8) {
-    AND_OR_INV,
-    OR_AND_INV,
-}];
 
 #[derive(Debug, Clone)]
 pub struct TernaryOpCell {

@@ -2,11 +2,13 @@ use std::fs::File;
 use std::io::BufReader;
 
 use crate::TernaryOp;
+use crate::UnaryOp;
 use crate::common::FindByName;
 use crate::common::SimError;
 use crate::common::Vec4;
 use crate::json;
 use crate::model;
+use crate::ops;
 use crate::sim::Edge;
 
 use super::Connection;
@@ -48,13 +50,13 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
     for (cell_name, json_cell) in json_module.cells.iter() {
         let cell: model::Cell =  match json_cell.r#type {
             json::CellType::AND | json::CellType::SyntAND => {
-                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::AND)?
+                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::AND)?
             }
             json::CellType::OR | json::CellType::SyntOR => {
-                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::OR)?
+                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::OR)?
             }
             json::CellType::NOT | json::CellType::SyntNOT => {
-                parse_not(cell_name, json_cell, ("A", "Y"))?
+                parse_unary(cell_name, json_cell, ("A", "Y"), ops::UnaryOp::NOT)?
             }
             json::CellType::DFF => {
                 parse_flipflop(cell_name, json_cell, ("CLK", "D", "Q"), None)?
@@ -66,29 +68,29 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
                 parse_flipflop(cell_name, json_cell, ("C", "D", "Q"), Some(Edge::POSITIVE))?
             }
             json::CellType::SyntNAND => {
-                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::NAND)?
+                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::NAND)?
             }
             json::CellType::SyntNOR => {
-                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::NOR)?
+                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::NOR)?
             }
             json::CellType::SyntXOR => {
-                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::XOR)?
+                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::XOR)?
             }
             json::CellType::SyntXNOR => {
-                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::XNOR)?
+                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::XNOR)?
             }
             json::CellType::SyntAND_NOT => {
-                parse_binary_op(cell_name, json_cell, ("A", "B", "Y"), model::BinaryOp::AND_NOT)?
+                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::AND_NOT)?
             }
             json::CellType::SyntOR_NOT => {
-                parse_binary_op(cell_name, json_cell, ("A", "B",  "Y"), model::BinaryOp::OR_NOT)?
+                parse_binary(cell_name, json_cell, ("A", "B",  "Y"), ops::BinaryOp::OR_NOT)?
             }
 
             json::CellType::SyntAOI3 => {
-                parse_ternary_op(cell_name, json_cell, ("A", "B", "C", "Y"), model::TernaryOp::AND_OR_INV)?
+                parse_ternary(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryOp::AND_OR_INV)?
             }
             json::CellType::SyntOAI3 => {
-                parse_ternary_op(cell_name, json_cell, ("A", "B", "C", "Y"), model::TernaryOp::OR_AND_INV)?
+                parse_ternary(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryOp::OR_AND_INV)?
             }
         };
 
@@ -103,11 +105,11 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
     })
 }
 
-fn parse_binary_op(
+fn parse_binary(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str, &str),
-    op: model::BinaryOp,
+    op: ops::BinaryOp,
 ) -> Result<model::Cell, SimError> {
     let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
 
@@ -131,19 +133,20 @@ fn parse_binary_op(
     }))
 }
 
-fn parse_not(
+fn parse_unary(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str),
+    op: UnaryOp,
 ) -> Result<model::Cell, SimError> {
     let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
 
     let conn_a = connections.iter().find_by_name(connection_names.0)?;
     let conn_y = connections.iter().find_by_name(connection_names.1)?;
 
-    Ok(model::Cell::NotOpCell(model::NotOpCell {
+    Ok(model::Cell::UnaryOpCell(model::UnaryOpCell {
         name: cell_name.to_string(),
-        // width: conn_y.width,
+        op: op,
         port_a: conn_a.to_port(),
         port_y: conn_y.to_port(),
     }))
@@ -205,7 +208,7 @@ fn parse_add(
     }))
 }
 
-fn parse_ternary_op(
+fn parse_ternary(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str, &str, &str),

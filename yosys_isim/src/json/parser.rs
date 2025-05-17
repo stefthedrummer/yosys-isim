@@ -1,5 +1,6 @@
 use crate::common::FindByName;
 use crate::common::SimError;
+use crate::common::Str8;
 use crate::common::Vec4;
 use crate::json;
 use crate::json::Connection;
@@ -38,7 +39,7 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
     let mut out_ports: Vec4<model::ModuleOutPort> = Vec4::new();
 
     for (port_name, json_port) in json_module.ports.iter() {
-        let name: String = port_name.to_string();
+        let name: Str8 = port_name.clone();
         let wires = HWireOrLogic::only_HWires(&parse_wires(&json_port.bits)?)?;
         match json_port.direction {
             json::PortDirection::Input => in_ports.push(ModuleInPort {

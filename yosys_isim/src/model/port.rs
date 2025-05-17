@@ -1,4 +1,5 @@
 use crate::common::HasName;
+use crate::common::Str8;
 use crate::common::Vec4;
 use std::marker::PhantomData;
 
@@ -12,7 +13,7 @@ impl Dir for Out {}
 
 #[derive(Debug, Clone)]
 pub struct Port<D: Dir, W, const L: usize = 0> {
-    pub name: String,
+    pub name: Str8,
     pub wires: Vec4<W>,
     pub dir: PhantomData<D>,
 }

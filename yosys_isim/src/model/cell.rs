@@ -21,6 +21,7 @@ pub enum Cell {
     TernaryMapOpCell(TernaryMapOpCell),
     DFlipFlopCell(DFlipFlopCell),
     AddCell(AddCell),
+    // ShiftCell(ShiftCell),
 }
 
 #[derive(Debug, Clone)]
@@ -61,6 +62,14 @@ pub struct DFlipFlopCell {
 
 #[derive(Debug, Clone)]
 pub struct AddCell {
+    pub name: String,
+    pub port_a: CellInPort,
+    pub port_b: CellInPort,
+    pub port_y: CellOutPort,
+}
+
+#[derive(Debug, Clone)]
+pub struct ShiftCell {
     pub name: String,
     pub port_a: CellInPort,
     pub port_b: CellInPort,

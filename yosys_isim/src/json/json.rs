@@ -7,14 +7,14 @@ use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Netlist {
-    pub modules: HashMap<String, Module>,
+    pub modules: HashMap<Str8, Module>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Module {
-    pub ports: HashMap<String, Port>,
-    pub cells: HashMap<String, Cell>,
-    pub netnames: HashMap<String, Net>,
+    pub ports: HashMap<Str8, Port>,
+    pub cells: HashMap<Str8, Cell>,
+    pub netnames: HashMap<Str8, Net>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -34,9 +34,9 @@ pub enum PortDirection {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Cell {
     pub r#type: Str8,
-    pub port_directions: HashMap<String, PortDirection>,
-    pub connections: HashMap<String, Vec4<Value>>,
-    pub parameters: HashMap<String, Value>,
+    pub port_directions: HashMap<Str8, PortDirection>,
+    pub connections: HashMap<Str8, Vec4<Value>>,
+    pub parameters: HashMap<Str8, Value>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

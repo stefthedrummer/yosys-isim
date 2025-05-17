@@ -5,10 +5,11 @@ use crate::json;
 use crate::json::parse_wires;
 use crate::model::HWireOrLogic;
 use crate::model::{self};
+use small_str::ToSmallStr;
 use std::marker::PhantomData;
 
 pub(super) struct Connection<'a> {
-    pub name: &'a String,
+    pub name: &'a str,
     pub wires: Vec4<HWireOrLogic>,
     pub direction: json::PortDirection,
     pub signed: bool,
@@ -26,7 +27,7 @@ impl<'a> HasName for Connection<'a> {
 impl<'a> Connection<'a> {
     pub(super) fn to_in_port(&self) -> Result<model::CellInPort, SimError> {
         Ok(model::CellInPort {
-            name: self.name.to_string(),
+            name: self.name.to_smallstr(),
             wires: self.wires.clone(),
             dir: PhantomData,
         })
@@ -34,7 +35,7 @@ impl<'a> Connection<'a> {
 
     pub(super) fn to_out_port(&self) -> Result<model::CellOutPort, SimError> {
         Ok(model::CellOutPort {
-            name: self.name.to_string(),
+            name: self.name.to_smallstr(),
             wires: HWireOrLogic::only_HWires(&self.wires)?,
             dir: PhantomData,
         })

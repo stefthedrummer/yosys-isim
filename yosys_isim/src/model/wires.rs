@@ -1,6 +1,6 @@
 use crate::common::SimError;
 use crate::common::Vec4;
-use crate::sim::Logic;
+use crate::model::Logic;
 use smallvec::smallvec;
 
 pub type HWire = usize;

@@ -3,7 +3,7 @@ use crate::util::assert::assert;
 use std::ops::Deref;
 use yosys_isim::common::FindByName;
 use yosys_isim::common::SimError;
-use yosys_isim::sim::Logic;
+use yosys_isim::model::Logic;
 use yosys_isim::sim::Sim;
 
 #[test]

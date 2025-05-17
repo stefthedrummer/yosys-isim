@@ -1,7 +1,7 @@
 #![allow(non_upper_case_globals)]
 use crate::define_enum;
+use crate::model::Logic;
 use crate::sim::BINARY_OP_FNS;
-use crate::sim::Logic;
 use crate::sim::UNARY_FNS;
 
 define_enum![enum UnaryOp repr(u8) {

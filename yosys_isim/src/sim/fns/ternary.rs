@@ -1,8 +1,8 @@
+use crate::model::Logic;
+use crate::model::Logic_Variants;
 use crate::ops::TernaryOp;
 use crate::ops::TernaryOp_Len;
 use crate::ops::TernaryOp_Variants;
-use crate::sim::Logic;
-use crate::sim::Logic_Variants;
 use std::ops::Index;
 
 #[derive(Copy, Clone)]

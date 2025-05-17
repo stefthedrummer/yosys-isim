@@ -1,15 +1,15 @@
 use crate::common::Set4;
 use crate::common::SimError;
+use crate::model::Edge;
 use crate::model::HCell;
 use crate::model::HWire;
 use crate::model::HWireOrLogic;
+use crate::model::Logic;
 use crate::model::Module;
 use crate::model::ModuleInPort;
 use crate::model::ModuleOutPort;
 use crate::sim::CellSimModel;
 use crate::sim::CellWires;
-use crate::sim::Edge;
-use crate::sim::Logic;
 use crate::sim::OP_FNS;
 use crate::sim::OpFns;
 use core::panic;

@@ -1,9 +1,9 @@
 use crate::common::Vec4;
+use crate::model::Logic;
+use crate::model::Logic_Variants;
 use crate::ops::UnaryOp;
 use crate::ops::UnaryOp_Len;
 use crate::ops::UnaryOp_Variants;
-use crate::sim::Logic;
-use crate::sim::Logic_Variants;
 use std::ops::Index;
 
 #[derive(Copy, Clone)]

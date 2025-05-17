@@ -25,8 +25,6 @@ pub struct Buffer<T> {
     buffer: Vec<T>,
 }
 
-
-
 impl<T> Deref for Buffer<T> {
     type Target = [T];
 

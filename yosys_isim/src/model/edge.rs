@@ -1,7 +1,7 @@
 #![allow(non_upper_case_globals)]
 
 use crate::define_enum;
-use crate::sim::Logic;
+use crate::model::Logic;
 
 define_enum![enum Edge repr(u8) {
     NONE,

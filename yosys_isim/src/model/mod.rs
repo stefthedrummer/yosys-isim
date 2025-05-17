@@ -6,3 +6,7 @@ pub mod cell;
 pub use cell::*;
 pub mod wires;
 pub use wires::*;
+pub mod edge;
+pub use edge::*;
+pub mod logic;
+pub use logic::*;

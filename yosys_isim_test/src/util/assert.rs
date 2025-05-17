@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use yosys_isim::common::Vec4;
-use yosys_isim::sim::Logic;
+use yosys_isim::model::Logic;
 
 pub fn assert(
     name: &str,

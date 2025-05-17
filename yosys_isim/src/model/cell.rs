@@ -1,3 +1,4 @@
+use crate::model::Edge;
 use crate::model::HWire;
 use crate::model::HWireOrLogic;
 use crate::model::In;
@@ -6,7 +7,6 @@ use crate::model::Port;
 use crate::ops::BinaryOp;
 use crate::ops::TernaryOp;
 use crate::ops::UnaryOp;
-use crate::sim::Edge;
 use enum_dispatch::enum_dispatch;
 
 pub type HCell = usize;

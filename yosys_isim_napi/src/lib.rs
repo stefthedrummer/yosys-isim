@@ -82,9 +82,9 @@ impl Sim {
                 .get_dynamic(port)
                 .into_iter()
                 .map(|logic| match logic {
-                    sim::Logic::_0 => env.create_uint32(0).unwrap().into_unknown(),
-                    sim::Logic::_1 => env.create_uint32(1).unwrap().into_unknown(),
-                    sim::Logic::X => env.create_string("X").unwrap().into_unknown(),
+                    model::Logic::_0 => env.create_uint32(0).unwrap().into_unknown(),
+                    model::Logic::_1 => env.create_uint32(1).unwrap().into_unknown(),
+                    model::Logic::X => env.create_string("X").unwrap().into_unknown(),
                 })
                 .collect())
         }

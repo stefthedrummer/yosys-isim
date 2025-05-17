@@ -6,19 +6,19 @@ use crate::ops::TernaryMapOp_Variants;
 use std::ops::Index;
 
 #[derive(Copy, Clone)]
-pub struct TernaryMapFn {
+pub struct TernaryMapOpFn {
     table: [[[Logic; 3]; 3]; 3],
 }
 
-impl Index<TernaryMapOp> for [TernaryMapFn; TernaryMapOp_Len] {
-    type Output = TernaryMapFn;
+impl Index<TernaryMapOp> for [TernaryMapOpFn; TernaryMapOp_Len] {
+    type Output = TernaryMapOpFn;
 
-    fn index(&self, index: TernaryMapOp) -> &TernaryMapFn {
+    fn index(&self, index: TernaryMapOp) -> &TernaryMapOpFn {
         &self[index as usize]
     }
 }
 
-impl Index<(Logic, Logic, Logic)> for TernaryMapFn {
+impl Index<(Logic, Logic, Logic)> for TernaryMapOpFn {
     type Output = Logic;
 
     fn index(&self, index: (Logic, Logic, Logic)) -> &Self::Output {
@@ -26,21 +26,21 @@ impl Index<(Logic, Logic, Logic)> for TernaryMapFn {
     }
 }
 
-impl TernaryMapFn {
-    pub(super) fn compile_all() -> [TernaryMapFn; TernaryMapOp_Len] {
-        let mut fs: [TernaryMapFn; TernaryMapOp_Len] = [TernaryMapFn {
+impl TernaryMapOpFn {
+    pub(super) fn compile_all() -> [TernaryMapOpFn; TernaryMapOp_Len] {
+        let mut fs: [TernaryMapOpFn; TernaryMapOp_Len] = [TernaryMapOpFn {
             table: [[[Logic::X; 3]; 3]; 3],
         }; TernaryMapOp_Len];
 
         for (index, op) in TernaryMapOp_Variants.iter().enumerate() {
-            fs[index] = TernaryMapFn::compile(*op);
+            fs[index] = TernaryMapOpFn::compile(*op);
         }
 
         fs
     }
 
-    fn compile(op: TernaryMapOp) -> TernaryMapFn {
-        let mut f = TernaryMapFn {
+    fn compile(op: TernaryMapOp) -> TernaryMapOpFn {
+        let mut f = TernaryMapOpFn {
             table: [[[Logic::X; 3]; 3]; 3],
         };
 

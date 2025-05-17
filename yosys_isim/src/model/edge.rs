@@ -3,7 +3,7 @@
 use crate::define_enum;
 use crate::model::Logic;
 
-define_enum![enum Edge repr(u8) {
+define_enum![enum Edge repr(u8) derive(Copy, Clone, Debug, Eq, PartialEq) {
     NONE,
     X,
     POSITIVE,

@@ -4,7 +4,7 @@ use crate::model::Logic;
 use crate::sim::BINARY_OP_FNS;
 use crate::sim::UNARY_FNS;
 
-define_enum![enum UnaryMapOp repr(u8) {
+define_enum![enum UnaryMapOp repr(u8) derive(Copy, Clone, Debug, Eq, PartialEq) {
     NOT,
     BUF,
 }];
@@ -18,7 +18,7 @@ impl UnaryMapOp {
     }
 }
 
-define_enum![enum BinaryMapOp repr(u8) {
+define_enum![enum BinaryMapOp repr(u8) derive(Copy, Clone, Debug, Eq, PartialEq) {
     AND,
     OR,
     XOR,
@@ -44,7 +44,7 @@ impl BinaryMapOp {
     }
 }
 
-define_enum![enum TernaryMapOp repr(u8) {
+define_enum![enum TernaryMapOp repr(u8) derive(Copy, Clone, Debug, Eq, PartialEq) {
     AND_OR_INV,
     OR_AND_INV,
 }];
@@ -61,3 +61,7 @@ impl TernaryMapOp {
         }
     }
 }
+
+define_enum![enum ComparisonOp repr(u8) derive(Copy, Clone, Debug, Eq, PartialEq) {
+    EQ, NE, GE, GT, LE, LT,
+}];

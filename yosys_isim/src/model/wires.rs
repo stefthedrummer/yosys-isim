@@ -3,8 +3,10 @@ use crate::common::Vec4;
 use crate::model::Logic;
 use smallvec::smallvec;
 
+/// Handle to a Wire. used to index into the wire-state-buffer of a Sim.
 pub type HWire = usize;
 
+/// Either a wire-handle or a constant logic-value.
 #[derive(Debug, Clone)]
 pub enum HWireOrLogic {
     HWire(HWire),

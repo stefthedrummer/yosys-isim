@@ -5,8 +5,8 @@ use crate::define_enum;
 use core::str;
 use smallvec::smallvec;
 
-define_enum![enum Logic repr(u8) {
- _0, _1 , X,
+define_enum![enum Logic repr(u8) derive(Copy, Clone, Debug) {
+    _0, _1 , X,
 }];
 
 impl Logic {
@@ -29,6 +29,7 @@ impl Logic {
         match value {
             "0" => Some(Logic::_0),
             "1" => Some(Logic::_1),
+            "X" => Some(Logic::X),
             _ => None,
         }
     }
@@ -52,14 +53,26 @@ impl Logic {
         }
     }
 
-    pub fn eq<const L: usize>(a: &[Logic; L], b: &[Logic; L]) -> bool {
+    pub fn is_physical(&self) -> bool {
+        *self as u8 <= Logic::_1 as u8
+    }
+
+    pub fn is_eq_logical(a: Logic, b: Logic) -> bool {
+        a as u8 == b as u8
+    }
+
+    pub fn is_eq_physical(a: Logic, b: Logic) -> bool {
+        a.is_physical() & b.is_physical() & (a as u8 == b as u8)
+    }
+
+    pub fn is_slice_eq(a: &[Logic], b: &[Logic], equality: impl Fn(Logic, Logic) -> bool) -> bool {
         let len_a = a.len();
         let len_b = b.len();
         if len_a != len_b {
             return false;
         }
         for i in 0..len_a {
-            if a[i] != b[i] {
+            if !equality(a[i], b[i]) {
                 return false;
             }
         }

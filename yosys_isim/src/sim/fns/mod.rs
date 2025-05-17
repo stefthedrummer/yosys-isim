@@ -13,7 +13,7 @@ pub use unary::*;
 lazy_static! {
     pub static ref UNARY_FNS: [UnaryMapOpFn; UnaryMapOp_Len] = UnaryMapOpFn::compile_all();
     pub static ref BINARY_OP_FNS: [BinaryMapOpFn; BinaryMapOp_Len] = BinaryMapOpFn::compile_all();
-    pub static ref TERNARY_OP_FNS: [TernaryMapFn; TernaryMapOp_Len] = TernaryMapFn::compile_all();
+    pub static ref TERNARY_OP_FNS: [TernaryMapOpFn; TernaryMapOp_Len] = TernaryMapOpFn::compile_all();
     pub static ref OP_FNS: OpFns = OpFns {
         unary: *UNARY_FNS,
         binary: *BINARY_OP_FNS,
@@ -25,5 +25,5 @@ lazy_static! {
 pub struct OpFns {
     pub unary: [UnaryMapOpFn; UnaryMapOp_Len],
     pub binary: [BinaryMapOpFn; BinaryMapOp_Len],
-    pub ternary: [TernaryMapFn; TernaryMapOp_Len],
+    pub ternary: [TernaryMapOpFn; TernaryMapOp_Len],
 }

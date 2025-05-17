@@ -1,5 +1,6 @@
+use crate::util::assert::assert_eq;
 use crate::TEST_GATES_SV;
-use crate::util::assert::assert;
+use crate::util::assert::assert_in_out_expected;
 use std::ops::Deref;
 use yosys_isim::common::FindByName;
 use yosys_isim::common::SimError;
@@ -54,7 +55,7 @@ pub fn do_test_binary_op<const L: usize>(
         sim.simulate()?;
         let y: [Logic; L] = sim.get(&port_y);
 
-        assert(module_name, &[a, b], &y, &[eval(a > 0, b > 0); L]);
+        assert_in_out_expected(module_name, &[a, b], &y, &[eval(a > 0, b > 0); L]);
     }
 
     Ok(())
@@ -70,18 +71,18 @@ pub fn test_dff() {
         let port_q = module.get_out_port::<2>("q")?;
         let mut sim: Sim<'_> = Sim::new(&module);
 
-        assert_eq!(sim.get(&port_q), [Logic::X; 2]);
+        assert_eq(sim.get(&port_q), [Logic::X; 2]);
 
         sim.set(&port_c, [0]);
         sim.set(&port_d, [1, 0]);
         sim.simulate()?;
 
-        assert_eq!(sim.get(&port_q), [Logic::X; 2]);
+        assert_eq(sim.get(&port_q), [Logic::X; 2]);
 
         sim.set(&port_c, [1]);
         sim.simulate()?;
 
-        assert_eq!(sim.get(&port_q), [Logic::_1, Logic::_0]);
+        assert_eq(sim.get(&port_q), [Logic::_1, Logic::_0]);
 
         sim.set(&port_c, [0]);
         sim.set(&port_d, [0, 1]);
@@ -90,7 +91,7 @@ pub fn test_dff() {
         sim.set(&port_c, [1]);
         sim.simulate()?;
 
-        assert_eq!(sim.get(&port_q), [Logic::_0, Logic::_1]);
+        assert_eq(sim.get(&port_q), [Logic::_0, Logic::_1]);
 
         Ok(())
     })()
@@ -117,7 +118,7 @@ pub fn test_add() {
                 sim.set(&port_b, b);
                 sim.simulate()?;
 
-                assert_eq!(sim.get(&port_y), expected);
+                assert_eq(sim.get(&port_y), expected);
             }
         }
 

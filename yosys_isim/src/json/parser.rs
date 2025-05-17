@@ -59,22 +59,22 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
         let r#type : &str = &json_cell.r#type;
         let cell: model::Cell = match r#type{
             // ------------------------------------------------------------------------------------------------------------------------------------------------
-            "$and" | "$_AND_" =>                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::AND)?,
-            "$or" | "$_OR_" =>                  parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::OR)?,
-            "$not" | "$_NOT_" =>                parse_unary(cell_name, json_cell, ("A", "Y"), ops::UnaryOp::NOT)?,
-            "$buf" =>                           parse_unary(cell_name, json_cell, ("A", "Y"), ops::UnaryOp::BUF)?,
+            "$and" | "$_AND_" =>                parse_binary_map_op(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryMapOp::AND)?,
+            "$or" | "$_OR_" =>                  parse_binary_map_op(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryMapOp::OR)?,
+            "$not" | "$_NOT_" =>                parse_unary_map_op(cell_name, json_cell, ("A", "Y"), ops::UnaryMapOp::NOT)?,
+            "$buf" =>                           parse_unary_map_op(cell_name, json_cell, ("A", "Y"), ops::UnaryMapOp::BUF)?,
             "$dff" =>                           parse_flipflop(cell_name, json_cell, ("CLK", "D", "Q"), None)?,
             "$add" =>                           parse_add(cell_name, json_cell, ("A", "B", "Y"))?,
             // ------------------------------------------------------------------------------------------------------------------------------------------------
             "$_DFF_P_" =>                       parse_flipflop(cell_name, json_cell, ("C", "D", "Q"), Some(Edge::POSITIVE))?,
-            "$_NAND_" =>                        parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::NAND)?,
-            "$_NOR_" =>                         parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::NOR)?,
-            "$_XOR_" =>                         parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::XOR)?,
-            "$_XNOR_" =>                        parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::XNOR)?,
-            "$_ANDNOT_" =>                      parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::AND_NOT)?,
-            "$_ORNOT_" =>                       parse_binary(cell_name, json_cell, ("A", "B",  "Y"), ops::BinaryOp::OR_NOT)?,
-            "$_AOI3_" =>                        parse_ternary(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryOp::AND_OR_INV)?,
-            "$_OAI3_" =>                        parse_ternary(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryOp::OR_AND_INV)?,
+            "$_NAND_" =>                        parse_binary_map_op(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryMapOp::NAND)?,
+            "$_NOR_" =>                         parse_binary_map_op(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryMapOp::NOR)?,
+            "$_XOR_" =>                         parse_binary_map_op(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryMapOp::XOR)?,
+            "$_XNOR_" =>                        parse_binary_map_op(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryMapOp::XNOR)?,
+            "$_ANDNOT_" =>                      parse_binary_map_op(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryMapOp::AND_NOT)?,
+            "$_ORNOT_" =>                       parse_binary_map_op(cell_name, json_cell, ("A", "B",  "Y"), ops::BinaryMapOp::OR_NOT)?,
+            "$_AOI3_" =>                        parse_ternary_map_op(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryMapOp::AND_OR_INV)?,
+            "$_OAI3_" =>                        parse_ternary_map_op(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryMapOp::OR_AND_INV)?,
             // ------------------------------------------------------------------------------------------------------------------------------------------------
             _ => Err(SimError::JsonError { msg: format!("unknown cell type [{}]", r#type) })?
         };
@@ -114,11 +114,11 @@ pub(super) fn parse_wires(json_wires: &Vec4<Value>) -> Result<Vec4<model::HWireO
     Ok(wires)
 }
 
-fn parse_binary(
+fn parse_binary_map_op(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str, &str),
-    op: ops::BinaryOp,
+    op: ops::BinaryMapOp,
 ) -> Result<model::Cell, SimError> {
     let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
 
@@ -132,7 +132,7 @@ fn parse_binary(
         });
     }
 
-    Ok(model::Cell::BinaryOpCell(model::BinaryOpCell {
+    Ok(model::Cell::BinaryMapOpCell(model::BinaryMapOpCell {
         name: cell_name.to_string(),
         op,
         // width: conn_y.width,
@@ -142,18 +142,18 @@ fn parse_binary(
     }))
 }
 
-fn parse_unary(
+fn parse_unary_map_op(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str),
-    op: ops::UnaryOp,
+    op: ops::UnaryMapOp,
 ) -> Result<model::Cell, SimError> {
     let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
 
     let conn_a = connections.iter().find_by_name(connection_names.0)?;
     let conn_y = connections.iter().find_by_name(connection_names.1)?;
 
-    Ok(model::Cell::UnaryOpCell(model::UnaryOpCell {
+    Ok(model::Cell::UnaryMapOpCell(model::UnaryMapOpCell {
         name: cell_name.to_string(),
         op: op,
         port_a: conn_a.to_in_port()?,
@@ -217,11 +217,11 @@ fn parse_add(
     }))
 }
 
-fn parse_ternary(
+fn parse_ternary_map_op(
     cell_name: &str,
     json_cell: &json::Cell,
     connection_names: (&str, &str, &str, &str),
-    op: ops::TernaryOp,
+    op: ops::TernaryMapOp,
 ) -> Result<model::Cell, SimError> {
     let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
 
@@ -237,7 +237,7 @@ fn parse_ternary(
         });
     }
 
-    Ok(model::Cell::TernaryOpCell(model::TernaryOpCell {
+    Ok(model::Cell::TernaryMapOpCell(model::TernaryMapOpCell {
         name: cell_name.to_string(),
         op: op,
         port_a: conn_a.to_in_port()?,

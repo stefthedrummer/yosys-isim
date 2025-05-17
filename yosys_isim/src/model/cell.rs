@@ -4,9 +4,9 @@ use crate::model::HWireOrLogic;
 use crate::model::In;
 use crate::model::Out;
 use crate::model::Port;
-use crate::ops::BinaryOp;
-use crate::ops::TernaryOp;
-use crate::ops::UnaryOp;
+use crate::ops::BinaryMapOp;
+use crate::ops::TernaryMapOp;
+use crate::ops::UnaryMapOp;
 use enum_dispatch::enum_dispatch;
 
 pub type HCell = usize;
@@ -16,27 +16,37 @@ pub type CellOutPort = Port<Out, HWire>;
 #[derive(Debug, Clone)]
 #[enum_dispatch(CellSimModel)]
 pub enum Cell {
-    UnaryOpCell(UnaryOpCell),
-    BinaryOpCell(BinaryOpCell),
-    TernaryOpCell(TernaryOpCell),
+    UnaryMapOpCell(UnaryMapOpCell),
+    BinaryMapOpCell(BinaryMapOpCell),
+    TernaryMapOpCell(TernaryMapOpCell),
     DFlipFlopCell(DFlipFlopCell),
     AddCell(AddCell),
 }
 
 #[derive(Debug, Clone)]
-pub struct UnaryOpCell {
+pub struct UnaryMapOpCell {
     pub name: String,
-    pub op: UnaryOp,
+    pub op: UnaryMapOp,
     pub port_a: CellInPort,
     pub port_y: CellOutPort,
 }
 
 #[derive(Debug, Clone)]
-pub struct BinaryOpCell {
+pub struct BinaryMapOpCell {
     pub name: String,
-    pub op: BinaryOp,
+    pub op: BinaryMapOp,
     pub port_a: CellInPort,
     pub port_b: CellInPort,
+    pub port_y: CellOutPort,
+}
+
+#[derive(Debug, Clone)]
+pub struct TernaryMapOpCell {
+    pub name: String,
+    pub op: TernaryMapOp,
+    pub port_a: CellInPort,
+    pub port_b: CellInPort,
+    pub port_c: CellInPort,
     pub port_y: CellOutPort,
 }
 
@@ -54,15 +64,5 @@ pub struct AddCell {
     pub name: String,
     pub port_a: CellInPort,
     pub port_b: CellInPort,
-    pub port_y: CellOutPort,
-}
-
-#[derive(Debug, Clone)]
-pub struct TernaryOpCell {
-    pub name: String,
-    pub op: TernaryOp,
-    pub port_a: CellInPort,
-    pub port_b: CellInPort,
-    pub port_c: CellInPort,
     pub port_y: CellOutPort,
 }

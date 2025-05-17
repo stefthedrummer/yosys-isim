@@ -1,6 +1,6 @@
 use crate::common::Vec4;
 use crate::model::AddCell;
-use crate::model::BinaryOpCell;
+use crate::model::BinaryMapOpCell;
 use crate::model::Cell;
 use crate::model::CellInPort;
 use crate::model::CellOutPort;
@@ -9,10 +9,10 @@ use crate::model::Edge;
 use crate::model::HWire;
 use crate::model::HWireOrLogic;
 use crate::model::Logic;
-use crate::model::TernaryOpCell;
-use crate::model::UnaryOpCell;
-use crate::ops::BinaryOp;
-use crate::ops::UnaryOp;
+use crate::model::TernaryMapOpCell;
+use crate::model::UnaryMapOpCell;
+use crate::ops::BinaryMapOp;
+use crate::ops::UnaryMapOp;
 use crate::sim::SimState;
 use crate::sim::StateRef;
 use enum_dispatch::enum_dispatch;
@@ -51,7 +51,7 @@ impl CellWires {
     }
 }
 
-impl CellSimModel for UnaryOpCell {
+impl CellSimModel for UnaryMapOpCell {
     fn name(&self) -> &str {
         &self.name
     }
@@ -67,7 +67,7 @@ impl CellSimModel for UnaryOpCell {
 
         sim.get_wires_or_logic(StateRef::Cur, &self.port_a.wires, &mut a);
 
-        let not = &sim.ops.unary[UnaryOp::NOT];
+        let not = &sim.ops.unary[UnaryMapOp::NOT];
 
         for i in 0..a.len() {
             y[i] = not[a[i]];
@@ -77,7 +77,7 @@ impl CellSimModel for UnaryOpCell {
     }
 }
 
-impl CellSimModel for BinaryOpCell {
+impl CellSimModel for BinaryMapOpCell {
     fn name(&self) -> &str {
         &self.name
     }
@@ -153,9 +153,9 @@ impl CellSimModel for AddCell {
         sim.get_wires_or_logic(StateRef::Cur, &self.port_a.wires, &mut a);
         sim.get_wires_or_logic(StateRef::Cur, &self.port_b.wires, &mut b);
 
-        let xor = &sim.ops.binary[BinaryOp::XOR];
-        let and = &sim.ops.binary[BinaryOp::AND];
-        let or = &sim.ops.binary[BinaryOp::OR];
+        let xor = &sim.ops.binary[BinaryMapOp::XOR];
+        let and = &sim.ops.binary[BinaryMapOp::AND];
+        let or = &sim.ops.binary[BinaryMapOp::OR];
 
         let mut c = Logic::_0;
 
@@ -169,7 +169,7 @@ impl CellSimModel for AddCell {
     }
 }
 
-impl CellSimModel for TernaryOpCell {
+impl CellSimModel for TernaryMapOpCell {
     fn name(&self) -> &str {
         &self.name
     }

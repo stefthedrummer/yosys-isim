@@ -1,24 +1,24 @@
 use crate::model::Logic;
 use crate::model::Logic_Variants;
-use crate::ops::TernaryOp;
-use crate::ops::TernaryOp_Len;
-use crate::ops::TernaryOp_Variants;
+use crate::ops::TernaryMapOp;
+use crate::ops::TernaryMapOp_Len;
+use crate::ops::TernaryMapOp_Variants;
 use std::ops::Index;
 
 #[derive(Copy, Clone)]
-pub struct TernaryFn {
+pub struct TernaryMapFn {
     table: [[[Logic; 3]; 3]; 3],
 }
 
-impl Index<TernaryOp> for [TernaryFn; TernaryOp_Len] {
-    type Output = TernaryFn;
+impl Index<TernaryMapOp> for [TernaryMapFn; TernaryMapOp_Len] {
+    type Output = TernaryMapFn;
 
-    fn index(&self, index: TernaryOp) -> &TernaryFn {
+    fn index(&self, index: TernaryMapOp) -> &TernaryMapFn {
         &self[index as usize]
     }
 }
 
-impl Index<(Logic, Logic, Logic)> for TernaryFn {
+impl Index<(Logic, Logic, Logic)> for TernaryMapFn {
     type Output = Logic;
 
     fn index(&self, index: (Logic, Logic, Logic)) -> &Self::Output {
@@ -26,21 +26,21 @@ impl Index<(Logic, Logic, Logic)> for TernaryFn {
     }
 }
 
-impl TernaryFn {
-    pub(super) fn compile_all() -> [TernaryFn; TernaryOp_Len] {
-        let mut fs: [TernaryFn; TernaryOp_Len] = [TernaryFn {
+impl TernaryMapFn {
+    pub(super) fn compile_all() -> [TernaryMapFn; TernaryMapOp_Len] {
+        let mut fs: [TernaryMapFn; TernaryMapOp_Len] = [TernaryMapFn {
             table: [[[Logic::X; 3]; 3]; 3],
-        }; TernaryOp_Len];
+        }; TernaryMapOp_Len];
 
-        for (index, op) in TernaryOp_Variants.iter().enumerate() {
-            fs[index] = TernaryFn::compile(*op);
+        for (index, op) in TernaryMapOp_Variants.iter().enumerate() {
+            fs[index] = TernaryMapFn::compile(*op);
         }
 
         fs
     }
 
-    fn compile(op: TernaryOp) -> TernaryFn {
-        let mut f = TernaryFn {
+    fn compile(op: TernaryMapOp) -> TernaryMapFn {
+        let mut f = TernaryMapFn {
             table: [[[Logic::X; 3]; 3]; 3],
         };
 
@@ -48,7 +48,7 @@ impl TernaryFn {
             for b in Logic_Variants.into_iter() {
                 for c in Logic_Variants.into_iter() {
                     f.table[a as usize][b as usize][c as usize] =
-                        TernaryOp::eval_logic(op, a, b, c);
+                        TernaryMapOp::eval_logic(op, a, b, c);
                 }
             }
         }

@@ -1,25 +1,25 @@
 use crate::common::Vec4;
 use crate::model::Logic;
 use crate::model::Logic_Variants;
-use crate::ops::BinaryOp;
-use crate::ops::BinaryOp_Len;
-use crate::ops::BinaryOp_Variants;
+use crate::ops::BinaryMapOp;
+use crate::ops::BinaryMapOp_Len;
+use crate::ops::BinaryMapOp_Variants;
 use std::ops::Index;
 
 #[derive(Copy, Clone)]
-pub struct BinaryOpFn {
+pub struct BinaryMapOpFn {
     table: [[Logic; 3]; 3],
 }
 
-impl Index<BinaryOp> for [BinaryOpFn; BinaryOp_Len] {
-    type Output = BinaryOpFn;
+impl Index<BinaryMapOp> for [BinaryMapOpFn; BinaryMapOp_Len] {
+    type Output = BinaryMapOpFn;
 
-    fn index(&self, index: BinaryOp) -> &BinaryOpFn {
+    fn index(&self, index: BinaryMapOp) -> &BinaryMapOpFn {
         &self[index as usize]
     }
 }
 
-impl Index<(Logic, Logic)> for BinaryOpFn {
+impl Index<(Logic, Logic)> for BinaryMapOpFn {
     type Output = Logic;
 
     fn index(&self, index: (Logic, Logic)) -> &Logic {
@@ -27,21 +27,21 @@ impl Index<(Logic, Logic)> for BinaryOpFn {
     }
 }
 
-impl BinaryOpFn {
-    pub(super) fn compile_all() -> [BinaryOpFn; BinaryOp_Len] {
-        let mut fs: [BinaryOpFn; BinaryOp_Len] = [BinaryOpFn {
+impl BinaryMapOpFn {
+    pub(super) fn compile_all() -> [BinaryMapOpFn; BinaryMapOp_Len] {
+        let mut fs: [BinaryMapOpFn; BinaryMapOp_Len] = [BinaryMapOpFn {
             table: [[Logic::X; 3]; 3],
-        }; BinaryOp_Len];
+        }; BinaryMapOp_Len];
 
-        for (index, op) in BinaryOp_Variants.iter().enumerate() {
-            fs[index] = BinaryOpFn::compile(*op);
+        for (index, op) in BinaryMapOp_Variants.iter().enumerate() {
+            fs[index] = BinaryMapOpFn::compile(*op);
         }
 
         fs
     }
 
-    fn compile(op: BinaryOp) -> BinaryOpFn {
-        let mut f = BinaryOpFn {
+    fn compile(op: BinaryMapOp) -> BinaryMapOpFn {
+        let mut f = BinaryMapOpFn {
             table: [[Logic::X; 3]; 3],
         };
         for a in Logic_Variants.into_iter() {
@@ -52,12 +52,12 @@ impl BinaryOpFn {
         f
     }
 
-    fn eval_logic(op: BinaryOp, a: Logic, b: Logic) -> Logic {
+    fn eval_logic(op: BinaryMapOp, a: Logic, b: Logic) -> Logic {
         let mut out_bool_set: Vec4<bool> = Vec4::new();
 
         for a_bool in Logic::to_bool_set(a) {
             for b_bool in Logic::to_bool_set(b) {
-                out_bool_set.push(BinaryOp::eval_bool(op, a_bool, b_bool));
+                out_bool_set.push(BinaryMapOp::eval_bool(op, a_bool, b_bool));
             }
         }
 

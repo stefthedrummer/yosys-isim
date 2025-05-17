@@ -8,6 +8,7 @@ crate-type = ["lib"]
 
 [dependencies]
 smallvec = { workspace = true }
+small_str = { workspace = true }
 more_collections = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

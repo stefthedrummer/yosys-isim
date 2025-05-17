@@ -112,7 +112,7 @@ checksum = "224662fb8a0e990a7f65dbef9c845f4f228f7a9155fd2653b807109d542f7bfb"
 dependencies = [
  "indexmap",
  "serde",
- "smallvec",
+ "smallvec 1.15.0",
 ]
 
 [[package]]
@@ -276,6 +276,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "small_str"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7630599c133ab7e0f5e3eeabdac3bd35091211aec6a9f962150b3f558ca4444"
+dependencies = [
+ "serde",
+ "smallvec 2.0.0-alpha.11",
+]
+
+[[package]]
 name = "smallvec"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -283,6 +293,12 @@ checksum = "8917285742e9f3e1683f0a9c4e6b57960b7314d0b08d30d1ecd426713ee2eee9"
 dependencies = [
  "serde",
 ]
+
+[[package]]
+name = "smallvec"
+version = "2.0.0-alpha.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87b96efa4bd6bdd2ff0c6615cc36fc4970cbae63cfd46ddff5cee35a1b4df570"
 
 [[package]]
 name = "static_assertions"
@@ -407,7 +423,8 @@ dependencies = [
  "paste",
  "serde",
  "serde_json",
- "smallvec",
+ "small_str",
+ "smallvec 1.15.0",
  "static_assertions",
  "thiserror",
 ]

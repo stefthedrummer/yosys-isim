@@ -56,50 +56,27 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
 
 
     for (cell_name, json_cell) in json_module.cells.iter() {
-        let cell: model::Cell =  match json_cell.r#type {
-            json::CellType::AND | json::CellType::SyntAND => {
-                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::AND)?
-            }
-            json::CellType::OR | json::CellType::SyntOR => {
-                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::OR)?
-            }
-            json::CellType::NOT | json::CellType::SyntNOT => {
-                parse_unary(cell_name, json_cell, ("A", "Y"), ops::UnaryOp::NOT)?
-            }
-            json::CellType::DFF => {
-                parse_flipflop(cell_name, json_cell, ("CLK", "D", "Q"), None)?
-            }
-            json::CellType::Add => {
-                parse_add(cell_name, json_cell, ("A", "B", "Y"))?
-            }
-            json::CellType::SyntDFFPos => {
-                parse_flipflop(cell_name, json_cell, ("C", "D", "Q"), Some(Edge::POSITIVE))?
-            }
-            json::CellType::SyntNAND => {
-                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::NAND)?
-            }
-            json::CellType::SyntNOR => {
-                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::NOR)?
-            }
-            json::CellType::SyntXOR => {
-                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::XOR)?
-            }
-            json::CellType::SyntXNOR => {
-                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::XNOR)?
-            }
-            json::CellType::SyntAND_NOT => {
-                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::AND_NOT)?
-            }
-            json::CellType::SyntOR_NOT => {
-                parse_binary(cell_name, json_cell, ("A", "B",  "Y"), ops::BinaryOp::OR_NOT)?
-            }
-
-            json::CellType::SyntAOI3 => {
-                parse_ternary(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryOp::AND_OR_INV)?
-            }
-            json::CellType::SyntOAI3 => {
-                parse_ternary(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryOp::OR_AND_INV)?
-            }
+        let r#type : &str = &json_cell.r#type;
+        let cell: model::Cell = match r#type{
+            // ------------------------------------------------------------------------------------------------------------------------------------------------
+            "$and" | "$_AND_" =>                parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::AND)?,
+            "$or" | "$_OR_" =>                  parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::OR)?,
+            "$not" | "$_NOT_" =>                parse_unary(cell_name, json_cell, ("A", "Y"), ops::UnaryOp::NOT)?,
+            "$buf" =>                           parse_unary(cell_name, json_cell, ("A", "Y"), ops::UnaryOp::BUF)?,
+            "$dff" =>                           parse_flipflop(cell_name, json_cell, ("CLK", "D", "Q"), None)?,
+            "$add" =>                           parse_add(cell_name, json_cell, ("A", "B", "Y"))?,
+            // ------------------------------------------------------------------------------------------------------------------------------------------------
+            "$_DFF_P_" =>                       parse_flipflop(cell_name, json_cell, ("C", "D", "Q"), Some(Edge::POSITIVE))?,
+            "$_NAND_" =>                        parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::NAND)?,
+            "$_NOR_" =>                         parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::NOR)?,
+            "$_XOR_" =>                         parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::XOR)?,
+            "$_XNOR_" =>                        parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::XNOR)?,
+            "$_ANDNOT_" =>                      parse_binary(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryOp::AND_NOT)?,
+            "$_ORNOT_" =>                       parse_binary(cell_name, json_cell, ("A", "B",  "Y"), ops::BinaryOp::OR_NOT)?,
+            "$_AOI3_" =>                        parse_ternary(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryOp::AND_OR_INV)?,
+            "$_OAI3_" =>                        parse_ternary(cell_name, json_cell, ("A", "B", "C", "Y"), ops::TernaryOp::OR_AND_INV)?,
+            // ------------------------------------------------------------------------------------------------------------------------------------------------
+            _ => Err(SimError::JsonError { msg: format!("unknown cell type [{}]", r#type) })?
         };
 
         cells.push(cell);

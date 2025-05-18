@@ -1,0 +1,28 @@
+// type T = i8;
+
+// static mask1: Simd<T, 8> = Simd::<T, 8>::from_slice(&[
+//     -1, 0b01000000, 0b00100000, 0b00010000, 0b00001000, 0b00000100, 0b00000010, 0b00000001,
+// ]);
+
+// static mask: Simd<T, 8> = const {
+//     let mut vec: [i8; 8] = [0; 8];
+//     let mut i = 0;
+//     while i < vec.len() {
+//         vec[i] = (1 << i) as i8;
+//         i += 1;
+//     }
+//     Simd::<T, 8>::from_slice(&vec)
+// };
+
+// static zero: Simd<T, 8> = Simd::<T, 8>::splat(0);
+
+// fn foo(bits: u8,     a : *const u8 ) -> Simd<T, 8> {
+//     Simd::gather_select(source);
+//     a.add(count)
+
+//     let b = Simd::<T, 8>::splat(bits as T);
+//     let c = mask & b;
+//     let d = c.simd_ne(zero);
+//     let int_mask: Simd<T, 8> = d.to_int();
+//     int_mask
+// }

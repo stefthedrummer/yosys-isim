@@ -5,10 +5,11 @@ use crate::ops::BinaryMapOp;
 use crate::ops::BinaryMapOp_Len;
 use crate::ops::BinaryMapOp_Variants;
 use std::ops::Index;
+use std::ops::IndexMut;
 
 #[derive(Copy, Clone)]
 pub struct BinaryMapOpFn {
-    table: [[Logic; 3]; 3],
+    table: [Logic; 9],
 }
 
 impl Index<BinaryMapOp> for [BinaryMapOpFn; BinaryMapOp_Len] {
@@ -21,16 +22,20 @@ impl Index<BinaryMapOp> for [BinaryMapOpFn; BinaryMapOp_Len] {
 
 impl Index<(Logic, Logic)> for BinaryMapOpFn {
     type Output = Logic;
-
     fn index(&self, index: (Logic, Logic)) -> &Logic {
-        &self.table[index.0 as usize][index.1 as usize]
+        &self.table[(index.0 as usize) * 3 + (index.1 as usize)]
+    }
+}
+impl IndexMut<(Logic, Logic)> for BinaryMapOpFn {
+    fn index_mut(&mut self, index: (Logic, Logic)) -> &mut Self::Output {
+        &mut self.table[(index.0 as usize) * 3 + (index.1 as usize)]
     }
 }
 
 impl BinaryMapOpFn {
     pub(super) fn compile_all() -> [BinaryMapOpFn; BinaryMapOp_Len] {
         let mut fs: [BinaryMapOpFn; BinaryMapOp_Len] = [BinaryMapOpFn {
-            table: [[Logic::X; 3]; 3],
+            table: [Logic::X; 9],
         }; BinaryMapOp_Len];
 
         for (index, op) in BinaryMapOp_Variants.iter().enumerate() {
@@ -42,11 +47,11 @@ impl BinaryMapOpFn {
 
     fn compile(op: BinaryMapOp) -> BinaryMapOpFn {
         let mut f = BinaryMapOpFn {
-            table: [[Logic::X; 3]; 3],
+            table: [Logic::X; 9],
         };
         for a in Logic_Variants.into_iter() {
             for b in Logic_Variants.into_iter() {
-                f.table[a as usize][b as usize] = Self::eval_logic(op, a, b);
+                f[(a, b)] = Self::eval_logic(op, a, b);
             }
         }
         f

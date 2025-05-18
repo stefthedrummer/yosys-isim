@@ -1,9 +1,9 @@
 #![allow(non_upper_case_globals)]
 
 use crate::common::Vec2;
-use crate::define_enum;
 use core::str;
 use smallvec::smallvec;
+use yosys_isim_macros::define_enum;
 
 define_enum![enum Logic repr(u8) derive(Copy, Clone, Debug) {
     _0, _1 , X,
@@ -61,24 +61,22 @@ impl Logic {
         a as u8 == b as u8
     }
 
-    pub fn is_eq_physical(a: Logic, b: Logic) -> bool {
+    pub  fn is_eq_physical(a: Logic, b: Logic) -> bool {
         a.is_physical() & b.is_physical() & (a as u8 == b as u8)
     }
 
-    pub fn is_slice_eq(a: &[Logic], b: &[Logic], equality: impl Fn(Logic, Logic) -> bool) -> bool {
-        let len_a = a.len();
-        let len_b = b.len();
-        if len_a != len_b {
-            return false;
-        }
-        for i in 0..len_a {
-            if !equality(a[i], b[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
+    // pub fn compare(a: &[Logic], b: &[Logic]) -> Comparison {
+    //     if a.len() != b.len() {
+    //         panic!("comparison of slices with unequal length");
+    //     }
+    //     for i in (a.len() - 1)..0 {
+            
+    //     }
+
+    // }
 }
+
+struct Comparison(Option<i8>);
 
 impl From<bool> for Logic {
     fn from(value: bool) -> Self {

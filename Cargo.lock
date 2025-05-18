@@ -420,13 +420,29 @@ dependencies = [
  "enum_dispatch",
  "lazy_static",
  "more_collections",
- "paste",
  "serde",
  "serde_json",
  "small_str",
  "smallvec 1.15.0",
  "static_assertions",
  "thiserror",
+ "yosys_isim_macros",
+]
+
+[[package]]
+name = "yosys_isim_logic"
+version = "0.1.0"
+dependencies = [
+ "more_collections",
+ "smallvec 1.15.0",
+ "yosys_isim_macros",
+]
+
+[[package]]
+name = "yosys_isim_macros"
+version = "0.1.0"
+dependencies = [
+ "paste",
 ]
 
 [[package]]

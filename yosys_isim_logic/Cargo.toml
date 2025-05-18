@@ -1,0 +1,18 @@
+[package]
+name = "yosys_isim_logic"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+yosys_isim_macros = { path = "../yosys_isim_macros" }
+
+smallvec = { workspace = true }
+more_collections = { workspace = true }
+
+[features]
+default = ["logic_int_u32"]
+logic_int_u8 = []
+logic_int_u32 = []

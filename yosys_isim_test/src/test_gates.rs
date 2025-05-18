@@ -1,5 +1,5 @@
-use crate::util::assert::assert_eq;
 use crate::TEST_GATES_SV;
+use crate::util::assert::assert_eq;
 use crate::util::assert::assert_in_out_expected;
 use std::ops::Deref;
 use yosys_isim::common::FindByName;

@@ -63,3 +63,20 @@ module Add (
 );
   assign y = a + b;
 endmodule
+
+// module DffCircular (
+//     input logic clk,
+//     input logic rst,
+//     input logic d,
+//     output logic q
+// );
+//     logic t;
+//     assign t = q;
+
+//     always @(posedge clk or posedge rst) begin
+//         if (rst)
+//             q <= d;
+//         else
+//             q <= t;
+//     end
+// endmodule

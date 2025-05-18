@@ -9,6 +9,7 @@ use crate::model::Edge;
 use crate::model::HWire;
 use crate::model::HWireOrLogic;
 use crate::model::Logic;
+use crate::model::MuxCell;
 use crate::model::TernaryMapOpCell;
 use crate::model::UnaryMapOpCell;
 use crate::ops::BinaryMapOp;
@@ -194,6 +195,34 @@ impl CellSimModel for TernaryMapOpCell {
         for i in 0..y.len() {
             y[i] = op[(a[i], b[i], c[i])];
         }
+
+        sim.set_wires(StateRef::Cur, &self.port_y.wires, &y);
+    }
+}
+
+impl CellSimModel for MuxCell {
+    fn name(&self) -> &str {
+        &self.name
+    }
+    fn in_ports(&self) -> Vec4<&CellInPort> {
+        Vec4::from_slice(&[&self.port_a, &self.port_b, &self.port_s.as_ref_0()])
+    }
+    fn out_ports(&self) -> Vec4<&CellOutPort> {
+        Vec4::from_slice(&[&self.port_y])
+    }
+    fn simulate(&self, sim: &mut SimState) {
+        let s: Vec4<Logic> = smallvec![Logic::X; 1];
+        let mut y: Vec4<Logic> = smallvec![Logic::X; self.port_y.wires.len()];
+
+        sim.get_wires_or_logic(
+            StateRef::Cur,
+            match s[0] {
+                Logic::_0 => &self.port_a.wires,
+                Logic::_1 => &self.port_b.wires,
+                Logic::X => todo!("not implemented"),
+            },
+            &mut y,
+        );
 
         sim.set_wires(StateRef::Cur, &self.port_y.wires, &y);
     }

@@ -5,14 +5,13 @@ use crate::model::In;
 use crate::model::Out;
 use crate::model::Port;
 use crate::ops::BinaryMapOp;
-use crate::ops::ComparisonOp;
 use crate::ops::TernaryMapOp;
 use crate::ops::UnaryMapOp;
 use enum_dispatch::enum_dispatch;
 
 pub type HCell = usize;
-pub type CellInPort = Port<In, HWireOrLogic>;
-pub type CellOutPort = Port<Out, HWire>;
+pub type CellInPort<const L: usize = 0> = Port<In, HWireOrLogic, L>;
+pub type CellOutPort<const L: usize = 0> = Port<Out, HWire, L>;
 
 #[derive(Debug, Clone)]
 #[enum_dispatch(CellSimModel)]
@@ -22,6 +21,7 @@ pub enum Cell {
     TernaryMapOpCell(TernaryMapOpCell),
     DFlipFlopCell(DFlipFlopCell),
     AddCell(AddCell),
+    MuxCell(MuxCell),
     // ShiftCell(ShiftCell),
 }
 
@@ -70,13 +70,22 @@ pub struct AddCell {
 }
 
 #[derive(Debug, Clone)]
-pub struct ComparisonOpCell {
+pub struct MuxCell {
     pub name: String,
-    pub op: ComparisonOp,
     pub port_a: CellInPort,
     pub port_b: CellInPort,
+    pub port_s: CellInPort<1>,
     pub port_y: CellOutPort,
 }
+
+// #[derive(Debug, Clone)]
+// pub struct ComparisonOpCell {
+//     pub name: String,
+//     pub op: ComparisonOp,
+//     pub port_a: CellInPort,
+//     pub port_b: CellInPort,
+//     pub port_y: CellOutPort,
+// }
 
 // #[derive(Debug, Clone)]
 // pub struct ShiftCell {

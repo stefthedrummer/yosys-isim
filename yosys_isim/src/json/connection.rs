@@ -25,7 +25,13 @@ impl<'a> HasName for Connection<'a> {
 }
 
 impl<'a> Connection<'a> {
-    pub(super) fn to_in_port(&self) -> Result<model::CellInPort, SimError> {
+    pub(super) fn to_in_port<const L: usize>(&self) -> Result<model::CellInPort<L>, SimError> {
+        if L != 0 && self.wires.len() != L {
+            return Err(SimError::IllegalState {
+                msg: format!("expected width [{}] but was [{}]", L, self.wires.len()),
+            });
+        }
+
         Ok(model::CellInPort {
             name: self.name.to_smallstr(),
             wires: self.wires.clone(),

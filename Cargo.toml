@@ -1,6 +1,14 @@
+cargo-features = ["profile-rustflags"]
+
 [workspace]
 resolver = "2"
-members = ["yosys_isim", "yosys_isim_test", "yosys_isim_napi"]
+members = [
+    "yosys_isim",
+    "yosys_isim_macros",
+    "yosys_isim_test",
+    "yosys_isim_napi",
+    "yosys_isim_logic",
+]
 
 [workspace.dependencies]
 smallvec = { version = "1.15.0", features = ["serde"] }
@@ -21,7 +29,9 @@ lazy_static = { version = "1.5.0" }
 napi = { version = "2", default-features = false, features = ["napi9"] }
 napi-derive = "2"
 
-
 [profile.release]
-lto = true
-strip = "symbols"
+#debug = true
+opt-level = 2
+#rustflags = ["-C", "target-cpu=native"]
+#lto = true
+#strip = "symbols"

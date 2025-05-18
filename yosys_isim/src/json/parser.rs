@@ -66,6 +66,7 @@ fn parse_module(name: &str, json_module: &json::Module) -> Result<model::Module,
             "$buf" =>                           parse_unary_map_op(cell_name, json_cell, ("A", "Y"), ops::UnaryMapOp::BUF)?,
             "$dff" =>                           parse_flipflop(cell_name, json_cell, ("CLK", "D", "Q"), None)?,
             "$add" =>                           parse_add(cell_name, json_cell, ("A", "B", "Y"))?,
+            "$mux" =>                           parse_mux(cell_name, json_cell, ("A", "B", "S", "Y"))?,
             // ------------------------------------------------------------------------------------------------------------------------------------------------
             "$_DFF_P_" =>                       parse_flipflop(cell_name, json_cell, ("C", "D", "Q"), Some(Edge::POSITIVE))?,
             "$_NAND_" =>                        parse_binary_map_op(cell_name, json_cell, ("A", "B", "Y"), ops::BinaryMapOp::NAND)?,
@@ -244,6 +245,33 @@ fn parse_ternary_map_op(
         port_a: conn_a.to_in_port()?,
         port_b: conn_b.to_in_port()?,
         port_c: conn_c.to_in_port()?,
+        port_y: conn_y.to_out_port()?,
+    }))
+}
+
+fn parse_mux(
+    cell_name: &str,
+    json_cell: &json::Cell,
+    connection_names: (&str, &str, &str, &str),
+) -> Result<model::Cell, SimError> {
+    let connections: Vec4<Connection<'_>> = parse_connections(json_cell)?;
+
+    let conn_a = connections.iter().find_by_name(connection_names.0)?;
+    let conn_b = connections.iter().find_by_name(connection_names.1)?;
+    let conn_s = connections.iter().find_by_name(connection_names.2)?;
+    let conn_y = connections.iter().find_by_name(connection_names.3)?;
+
+    if conn_a.width != conn_b.width || conn_b.width != conn_y.width {
+        return Err(SimError::JsonError {
+            msg: format!("Widths not matching"),
+        });
+    }
+
+    Ok(model::Cell::MuxCell(model::MuxCell {
+        name: cell_name.to_string(),
+        port_a: conn_a.to_in_port()?,
+        port_b: conn_b.to_in_port()?,
+        port_s: conn_s.to_in_port()?,
         port_y: conn_y.to_out_port()?,
     }))
 }

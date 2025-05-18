@@ -7,6 +7,8 @@ edition = "2024"
 crate-type = ["lib"]
 
 [dependencies]
+yosys_isim_macros = { path = "../yosys_isim_macros" }
+
 smallvec = { workspace = true }
 small_str = { workspace = true }
 more_collections = { workspace = true }
@@ -15,5 +17,4 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 enum_dispatch = { workspace = true }
 static_assertions = { workspace = true }
-paste = { workspace = true }
 lazy_static = { workspace = true }
